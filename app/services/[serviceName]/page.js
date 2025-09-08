@@ -2,254 +2,296 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import toast from "react-hot-toast";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, X } from "lucide-react";
+function PageLoader() {
+  return (
+    <div className="fixed inset-0 flex flex-col items-center justify-center bg-gray-900 z-50">
+      {/* Logo */}
+      <Image
+        src="/images/LOGO (2).jpg" // 🔹 replace with your uploaded logo
+        alt="Logo"
+        width={180}
+        height={60}
+        className="mb-6"
+      />
+      {/* Progress Line */}
+      <div className="w-36 h-1 absolute top-[433px] left-[124px] bg-gray-700 rounded overflow-hidden">
+        <div className="h-full bg-[#3ab4ff] animate-loaderLine"></div>
+      </div>
+    </div>
+  );
+}
+
+// ✅ Keyframes for line animation (add this in globals.css)
+{/* 
+@keyframes loaderLine {
+  0% { width: 0; }
+  100% { width: 100%; }
+}
+.animate-loaderLine {
+  animation: loaderLine 2s ease-in-out forwards;
+}
+*/}
 
 export default function ServiceDetailPage() {
   const { serviceName } = useParams();
-  const decodedServiceName = decodeURIComponent(serviceName);
+  const decodedServiceName = decodeURIComponent(serviceName || "");
   const router = useRouter();
-const [cart, setCart] = useState([]);
+
+  const [cart, setCart] = useState([]);
   const [services, setServices] = useState([]);
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
-   const addToCart = (newItem) => {
-  let existingCart = JSON.parse(localStorage.getItem("cart")) || [];
+  const [showDrawer, setShowDrawer] = useState(false);
 
-  if (existingCart.length > 0) {
-    const existingCategory = existingCart[0].category;
+  // ⭐ Add to cart logic
+  const addToCart = (newItem) => {
+    let existingCart = JSON.parse(localStorage.getItem("cart")) || [];
 
-    if (existingCategory !== newItem.category) {
-      // Show confirmation before replacing
-      const confirmReplace = window.confirm(
-        "Your cart already contains services from a different category. Do you want to replace it?"
-      );
-
-      if (confirmReplace) {
-        // Replace cart with new category
+    if (existingCart.length > 0) {
+      const existingCategory = existingCart[0].category;
+      if (existingCategory !== newItem.category) {
+        const confirmReplace = window.confirm(
+          "Your cart already contains services from another category. Replace it?"
+        );
+        if (!confirmReplace) return;
         existingCart = [newItem];
-        localStorage.setItem("cart", JSON.stringify(existingCart));
-        setCart(existingCart);
-        alert("Cart has been replaced with the new category service.");
       } else {
-        // Do nothing
-        return;
+        existingCart.push(newItem);
       }
     } else {
-      // Same category → just add item
       existingCart.push(newItem);
-      localStorage.setItem("cart", JSON.stringify(existingCart));
-      setCart(existingCart);
-       toast.success(
-  <div className="flex items-center gap-3">
-    <CheckCircle className="text-white w-5 h-5" />
-    <span className="text-white font-medium">Item added to cart ✅</span>
-  </div>,
-  {
-    style: {
-      background: "linear-gradient(to right, #4ade80, #16a34a)", // green gradient
-      color: "#fff",
-      borderRadius: "12px",
-      padding: "12px 18px",
-      boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
-    },
-    icon: null, // we added our own icon
-    duration: 3000,
-  }
-);
     }
-  } else {
-    // Empty cart → add directly
-    existingCart.push(newItem);
+
     localStorage.setItem("cart", JSON.stringify(existingCart));
     setCart(existingCart);
+
     toast.success(
-  <div className="flex items-center gap-3">
-    <CheckCircle className="text-white w-5 h-5" />
-    <span className="text-white font-medium">Item added to cart ✅</span>
-  </div>,
-  {
-    style: {
-      background: "linear-gradient(to right, #4ade80, #16a34a)", // green gradient
-      color: "#fff",
-      borderRadius: "12px",
-      padding: "12px 18px",
-      boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
-    },
-    icon: null, // we added our own icon
-    duration: 3000,
-  }
-);
-  }
-  router.push("/checkout")
-};
+      <div className="flex items-center gap-2">
+        <CheckCircle className="w-5 h-5 text-white" />
+        <span className="text-white font-medium">Added to cart</span>
+      </div>,
+      {
+        style: {
+          background: "linear-gradient(to right, #4ade80, #16a34a)",
+          borderRadius: "12px",
+          padding: "10px 16px",
+        },
+        duration: 2500,
+      }
+    );
 
-
-  // Helper to render stars
-  const renderStars = (rating) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      if (rating >= i) stars.push(<FaStar key={i} className="text-yellow-400" />);
-      else if (rating >= i - 0.5) stars.push(<FaStarHalfAlt key={i} className="text-yellow-400" />);
-      else stars.push(<FaRegStar key={i} className="text-yellow-400" />);
-    }
-    return stars;
+    router.push("/checkout");
   };
 
+  // ⭐ Render stars
+  const renderStars = (rating) =>
+    Array.from({ length: 5 }, (_, i) => {
+      if (rating >= i + 1) return <FaStar key={i} className="text-yellow-400" />;
+      if (rating >= i + 0.5) return <FaStarHalfAlt key={i} className="text-yellow-400" />;
+      return <FaRegStar key={i} className="text-yellow-400" />;
+    });
+
+  // ⭐ Fetch services
   useEffect(() => {
     async function fetchServices() {
       try {
         const res = await fetch("/api/services");
         const data = await res.json();
-        setServices(data);
+        const list = Array.isArray(data) ? data : data.services || [];
+        setServices(list);
 
-        const found = data.find(
-          (s) =>
-            s.title &&
-            decodedServiceName &&
-            s.title.toLowerCase().includes(decodedServiceName.toLowerCase())
-        );
-
+        const normalize = (str) => str?.toLowerCase().replace(/[\s-]+/g, "") || "";
+        const found = list.find((s) => normalize(s.title) === normalize(decodedServiceName));
         setSelected(found);
       } catch (err) {
-        console.error("Error fetching services:", err);
+        console.error("Fetch error:", err);
       } finally {
         setLoading(false);
       }
     }
     fetchServices();
   }, [serviceName]);
+    useEffect(() => {
+      const timer = setTimeout(() => setLoading(false), 2000);
+      return () => clearTimeout(timer);
+    }, []);
+  
+    if (loading) return <PageLoader />;
 
-  if (loading) return <p className="text-center mt-20">Loading services...</p>;
+  // if (loading) return <p className="text-center mt-20">Loading...</p>;
   if (!selected) return <p className="text-center mt-20 text-red-500">Service not found</p>;
 
-  // Ensure reviews array is safe
   const reviewsArray = Array.isArray(selected.reviews) ? selected.reviews : [];
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br mt-[65px] from-[#fdfbfb] via-[#ebedee] to-[#dfe9f3] p-8">
-
-      {/* Background Glow */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute w-96 h-96 bg-[#5d7afc]/30 rounded-full blur-[150px] top-20 left-10 animate-pulse"></div>
-        <div className="absolute w-80 h-80 bg-pink-400/20 rounded-full blur-[120px] bottom-10 right-20 animate-bounce"></div>
+    <div className="mt-[65px] pb-16">
+      {/* Top Banner */}
+      <div className="relative w-full h-56 sm:h-72 md:h-80">
+        <Image
+          src={selected.image || "/images/default.jpg"}
+          alt={selected.title}
+          fill
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
       </div>
 
-      {/* Selected Service */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.7, ease: "easeOut" }}
-        className="max-w-5xl mx-auto bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200 p-10 relative z-10"
-      >
-        <div className="flex flex-col md:flex-row items-center gap-10">
-          <div className="relative w-64 h-64 rounded-2xl overflow-hidden shadow-xl">
-            <Image
-              src={selected.image || "/images/default.jpg"}
-              alt={selected.title}
-              width={400}
-              height={400}
-              className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
-            />
-          </div>
-          <div className="flex-1 text-center md:text-left">
-            <h1 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-[#5d7afc] to-pink-500">
-              {selected.title}
-            </h1>
-            <p className="mt-4 text-gray-700">{selected.description}</p>
-            <p className="mt-3 text-2xl font-bold text-[#5d7afc]">₹{selected.price}</p>
-
-            {/* Rating */}
-            <div className="mt-4 flex items-center gap-2">
-              {renderStars(selected.rating || 0)}
-              <span className="text-gray-600 ml-2">({reviewsArray.length} Reviews)</span>
-            </div>
-
-          <button
-  onClick={() => addToCart(selected)}
-  className="px-4 py-2 rounded-xl bg-[#5d7afc] text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 ease-in-out text-sm"
->
-  Add
-</button>
-
-          </div>
+      {/* Service Info */}
+      <div className="max-w-3xl mx-auto -mt-12 relative z-10 bg-white rounded-2xl shadow-md p-5">
+        <h1 className="text-xl sm:text-2xl font-bold">{selected.title}</h1>
+        <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+          {renderStars(selected.rating || 0)}
+          <span>({reviewsArray.length} reviews)</span>
         </div>
 
-        {/* Customer Reviews */}
-        {reviewsArray.length > 0 && (
-  <div className="mt-10">
-    <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
-    <div className="flex flex-col gap-4">
-      {reviewsArray.map((rev, idx) => {
-        // If review is a string
-        if (typeof rev === "string") {
-          return (
-            <div
-              key={idx}
-              className="p-4 rounded-xl border border-gray-200 bg-white/70 backdrop-blur-md shadow"
-            >
-              <p className="text-gray-700">{rev}</p>
-            </div>
-          );
-        }
+        <p className="mt-3 text-gray-700 text-sm">{selected.description}</p>
 
-        // If review is an object
-        if (typeof rev === "object") {
-          return (
-            <div
-              key={idx}
-              className="p-4 rounded-xl border border-gray-200 bg-white/70 backdrop-blur-md shadow"
-            >
-              <div className="flex justify-between items-center">
-                <p className="font-semibold">{rev.user || "Anonymous"}</p>
-                <div className="flex items-center gap-1">{renderStars(rev.rating || 0)}</div>
-              </div>
-              <p className="mt-2 text-gray-700">{rev.comment || "No comment"}</p>
-            </div>
-          );
-        }
+        <div className="mt-3 flex items-center justify-between">
+          <p className="text-lg font-bold text-blue-600">₹{selected.price}</p>
+          <button
+            onClick={() => setShowDrawer(true)}
+            className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium shadow hover:shadow-md transition"
+          >
+            View
+          </button>
+        </div>
+      </div>
 
-        return null;
-      })}
-    </div>
-  </div>
-)}
-
-      </motion.div>
-
-      {/* Other Services */}
-      <div className="max-w-6xl mx-auto mt-20">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-10">Explore More Services</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+      {/* You may also like */}
+      <div className="max-w-6xl mx-auto mt-10 px-4">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">You may also like</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {services
             .filter((s) => s.title !== selected.title)
             .map((service, idx) => (
               <motion.div
                 key={idx}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.04 }}
                 onClick={() =>
                   router.push(`/services/${encodeURIComponent(service.title.toLowerCase())}`)
                 }
-                className="bg-white/60 backdrop-blur-lg p-6 rounded-3xl shadow-lg hover:shadow-xl cursor-pointer transition-transform"
+                className="bg-white rounded-lg shadow p-3 cursor-pointer hover:shadow-lg transition"
               >
                 <Image
                   src={service.image || "/images/default.jpg"}
                   alt={service.title}
-                  width={400}
-                  height={300}
-                  className="w-full h-40 object-cover rounded-xl"
+                  width={200}
+                  height={140}
+                  className="w-full h-28 object-cover rounded-md"
                 />
-                <h3 className="mt-4 text-xl font-semibold text-gray-900">{service.title}</h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  {service.description?.slice(0, 50) || "Premium experience"}
+                <h3 className="mt-2 text-sm font-semibold text-gray-900 line-clamp-1">
+                  {service.title}
+                </h3>
+                <p className="text-xs text-gray-500 line-clamp-2">
+                  {service.description?.slice(0, 50) || "Premium service"}
                 </p>
-                <p className="mt-2 text-lg font-bold text-[#5d7afc]">₹{service.price}</p>
+                <p className="mt-1 text-sm font-bold text-blue-600">₹{service.price}</p>
               </motion.div>
             ))}
         </div>
       </div>
+
+      {/* Drawer (Bottom Sheet) */}
+      <AnimatePresence>
+        {showDrawer && (
+          <>
+            {/* Overlay */}
+            <motion.div
+              className="fixed inset-0 bg-black/40 z-40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowDrawer(false)}
+            />
+
+            {/* Sliding Card */}
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", stiffness: 120, damping: 20 }}
+              className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-2xl shadow-xl max-h-[80vh] overflow-y-auto"
+            >
+              {/* Header with Close */}
+              <div className="flex justify-between items-center p-4 border-b">
+                <h2 className="text-lg font-bold">{selected.title}</h2>
+                <button onClick={() => setShowDrawer(false)} className="text-gray-600 hover:text-black">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="p-4">
+                <Image
+                  src={selected.image || "/images/default.jpg"}
+                  alt={selected.title}
+                  width={500}
+                  height={300}
+                  className="w-full h-40 object-cover rounded-lg"
+                />
+
+                <p className="mt-3 text-gray-700">{selected.description}</p>
+                <p className="mt-2 text-lg font-bold text-blue-600">₹{selected.price}</p>
+
+                {/* Rating */}
+                <div className="mt-3 flex items-center gap-2">
+                  {renderStars(selected.rating || 0)}
+                  <span className="text-gray-600 text-sm">
+                    ({reviewsArray.length} Reviews)
+                  </span>
+                </div>
+
+                {/* Reviews */}
+                {reviewsArray.length > 0 && (
+                  <div className="mt-5">
+                    <h3 className="text-md font-bold mb-2">Customer Reviews</h3>
+                    <div className="flex flex-col gap-3">
+                      {reviewsArray.map((rev, idx) => (
+                        <div
+                          key={idx}
+                          className="p-3 rounded-lg border border-gray-200 bg-gray-50"
+                        >
+                          {typeof rev === "string" ? (
+                            <p className="text-sm text-gray-700">{rev}</p>
+                          ) : (
+                            <>
+                              <div className="flex justify-between items-center">
+                                <p className="font-semibold text-sm">
+                                  {rev.user || "Anonymous"}
+                                </p>
+                                <div className="flex items-center gap-1">
+                                  {renderStars(rev.rating || 0)}
+                                </div>
+                              </div>
+                              <p className="mt-1 text-sm text-gray-700">
+                                {rev.comment || "No comment"}
+                              </p>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="p-4 border-t bg-white">
+                <button
+                  onClick={() => addToCart(selected)}
+                  className="w-full py-3 rounded-lg bg-blue-600 text-white font-medium shadow hover:shadow-lg transition"
+                >
+                  Add & Checkout
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

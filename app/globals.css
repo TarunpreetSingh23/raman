@@ -39,3 +39,11 @@
 /* ::-webkit-scrollbar-thumb:hover { */
   /* background-color: #5d7afc; darker purple */
 /* } */ 
+@keyframes loaderLine {
+  0% { width: 0; }
+  100% { width: 100%; }
+}
+
+.animate-loaderLine {
+  animation: loaderLine 2s ease-in-out forwards;
+}

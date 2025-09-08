@@ -1,34 +1,53 @@
 "use client";
-import Link from "next/link";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { CheckCircle } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
+function PageLoader() {
+  return (
+    <div className="fixed inset-0 flex flex-col items-center justify-center bg-gray-900 z-50">
+      {/* Logo */}
+      <Image
+        src="/images/LOGO (2).jpg" // 🔹 replace with your uploaded logo
+        alt="Logo"
+        width={180}
+        height={60}
+        className="mb-6"
+      />
+      {/* Progress Line */}
+      <div className="w-36 h-1 absolute top-[433px] left-[124px] bg-gray-700 rounded overflow-hidden">
+        <div className="h-full bg-[#3ab4ff] animate-loaderLine"></div>
+      </div>
+    </div>
+  );
+}
 
-// Dummy data
+// ✅ Keyframes for line animation (add this in globals.css)
+{/* 
+@keyframes loaderLine {
+  0% { width: 0; }
+  100% { width: 100%; }
+}
+.animate-loaderLine {
+  animation: loaderLine 2s ease-in-out forwards;
+}
+*/}
 
-
-const categories = ["All", "Waxing", "Facial", "Cleanup", "Pedicure", "Hair"];
-
-export default function ServicesPage() {
-const [selectedCategory, setSelectedCategory] = useState("All");
+export default function FacialPage() {
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [services, setServices] = useState([]);
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  
-const categories = ["All", "Waxing", "Facial", "Cleanup", "Pedicure", "Hair"];
+  // fetch facial services from DB
 
-  // fetch cleaning services from DB
   useEffect(() => {
     const fetchServices = async () => {
       try {
         const res = await fetch("/api/services/facial");
         const data = await res.json();
-        
-        // console.log(facialServices)
         setServices(data);
-
-        
       } catch (error) {
         console.error("Error fetching services:", error);
       } finally {
@@ -41,207 +60,185 @@ const categories = ["All", "Waxing", "Facial", "Cleanup", "Pedicure", "Hair"];
     const saved = localStorage.getItem("cart");
     if (saved) setCart(JSON.parse(saved));
   }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
+  if (loading) return <PageLoader />;
   const filteredServices =
-  selectedCategory === "All"
-    ? services
-    : services.filter((s) =>
-        s.title.toLowerCase().includes(selectedCategory.toLowerCase())
-      );
+    selectedCategory === "All"
+      ? services
+      : services.filter((s) =>
+          s.title.toLowerCase().includes(selectedCategory.toLowerCase())
+        );
 
-      // you can add a `subCategory` field in DB (Home, Office, Special)
+  const addToCart = (newItem) => {
+    let existingCart = JSON.parse(localStorage.getItem("cart")) || [];
 
- const addToCart = (newItem) => {
-  let existingCart = JSON.parse(localStorage.getItem("cart")) || [];
+    if (existingCart.length > 0) {
+      const existingCategory = existingCart[0].category;
 
-  if (existingCart.length > 0) {
-    const existingCategory = existingCart[0].category;
+      if (existingCategory !== newItem.category) {
+        const confirmReplace = window.confirm(
+          "Your cart already contains services from a different category. Do you want to replace it?"
+        );
 
-    if (existingCategory !== newItem.category) {
-      // Show confirmation before replacing
-      const confirmReplace = window.confirm(
-        "Your cart already contains services from a different category. Do you want to replace it?"
-      );
-
-      if (confirmReplace) {
-        // Replace cart with new category
-        existingCart = [newItem];
+        if (confirmReplace) {
+          existingCart = [newItem];
+          localStorage.setItem("cart", JSON.stringify(existingCart));
+          setCart(existingCart);
+          toast.success("Cart replaced with new category service");
+        } else {
+          return;
+        }
+      } else {
+        existingCart.push(newItem);
         localStorage.setItem("cart", JSON.stringify(existingCart));
         setCart(existingCart);
-        alert("Cart has been replaced with the new category service.");
-      } else {
-        // Do nothing
-        return;
+        successToast();
       }
     } else {
-      // Same category → just add item
       existingCart.push(newItem);
       localStorage.setItem("cart", JSON.stringify(existingCart));
       setCart(existingCart);
-      toast.success(
-  <div className="flex items-center gap-3">
-    <CheckCircle className="text-white w-5 h-5" />
-    <span className="text-white font-medium">Item added to cart ✅</span>
-  </div>,
-  {
-    style: {
-      background: "linear-gradient(to right, #4ade80, #16a34a)", // green gradient
-      color: "#fff",
-      borderRadius: "12px",
-      padding: "12px 18px",
-      boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
-    },
-    icon: null, // we added our own icon
-    duration: 3000,
-  }
-);
+      successToast();
     }
-  } else {
-    // Empty cart → add directly
-    existingCart.push(newItem);
-    localStorage.setItem("cart", JSON.stringify(existingCart));
-    setCart(existingCart);
-     toast.success(
-  <div className="flex items-center gap-3">
-    <CheckCircle className="text-white w-5 h-5" />
-    <span className="text-white font-medium">Item added to cart ✅</span>
-  </div>,
-  {
-    style: {
-      background: "linear-gradient(to right, #4ade80, #16a34a)", // green gradient
-      color: "#fff",
-      borderRadius: "12px",
-      padding: "12px 18px",
-      boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
-    },
-    icon: null, // we added our own icon
-    duration: 3000,
-  }
-);
-  }
-};
+  };
 
-
-  const removeItem = (index) => {
-    const newCart = [...cart];
-    newCart.splice(index, 1);
-    setCart(newCart);
-    localStorage.setItem("cart", JSON.stringify(newCart));
-    if (newCart.length === 0) localStorage.removeItem("coupon");
+  const successToast = () => {
+    toast.success(
+      <div className="flex items-center gap-3">
+        <CheckCircle className="text-white w-5 h-5" />
+        <span className="text-white font-medium">Item added to cart ✅</span>
+      </div>,
+      {
+        style: {
+          background: "linear-gradient(to right, #4ade80, #16a34a)",
+          color: "#fff",
+          borderRadius: "12px",
+          padding: "12px 18px",
+          boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+        },
+        icon: null,
+        duration: 3000,
+      }
+    );
   };
 
   if (loading) {
-    return <p className="text-center mt-20 text-gray-600">Loading services...</p>;
+    return (
+      <p className="text-center mt-20 text-gray-600">Loading facial services...</p>
+    );
   }
 
   return (
-    <div className="bg-gray-100 min-h-screen mt-[65px] p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-      {/* Sidebar */}
-      <div className="lg:col-span-3 bg-gray-200 p-4 rounded-xl shadow">
-        <h2 className="font-bold text-lg mb-4 text-gray-900">Select Facial Type</h2>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-1 gap-3">
-          {categories.map((cat) => (
+    <div className="bg-gray-50 min-h-screen mt-[70px] p-4 md:p-6">
+      {/* Title */}
+      <h1 className="text-3xl m-2 p-3 sm:text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r bg-gray-900">
+        Facial Services
+      </h1>
+
+      {/* Category grid */}
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4 mb-8">
+        {["All", "Waxing", "Facial", "Cleanup", "Pedicure", "Hair"].map(
+          (cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`flex flex-col items-center p-2 sm:p-3 border rounded-lg text-sm transition ${
+              className={`flex flex-col items-center justify-center p-3 rounded-xl border transition ${
                 selectedCategory === cat
                   ? "bg-[#5d7afc] text-white border-[#5d7afc]"
-                  : "hover:bg-gray-300 text-gray-900"
+                  : "bg-white text-gray-800 hover:bg-gray-100"
               }`}
             >
-              {cat}
+              {/* Placeholder icon - replace with category images */}
+              <div className="w-12 h-12 rounded-full bg-gray-200 mb-2"></div>
+              <span className="text-sm font-medium">{cat}</span>
             </button>
-          ))}
-        </div>
+          )
+        )}
       </div>
 
-      {/* Services List */}
-      <div className="lg:col-span-6 space-y-6 max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-[#5d7afc] scrollbar-track-gray-300 rounded-lg p-2">
-        <div className="bg-gray-200 p-4 md:p-6 rounded-xl mb-6">
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">{selectedCategory} Facial</h1>
-          <p className="text-gray-700 text-sm md:text-base">
-            Choose from our top-rated {selectedCategory === "All" ? "cleaning services" : selectedCategory.toLowerCase()} experts
-          </p>
-        </div>
-
+      {/* Services list */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {filteredServices.length > 0 ? (
           filteredServices.map((service) => (
+             <Link
+        key={service._id}
+        href={`/services/${service.title
+          ?.toLowerCase()
+          .replace(/\s+/g, "-")}`}
+      >
+
+     
             <div
               key={service._id}
-              className="group relative border border-transparent bg-white/70 backdrop-blur-md rounded-2xl p-4 md:p-5 shadow-md hover:shadow-2xl transition-all hover:-translate-y-1 hover:border-[#5d7afc] duration-300 flex gap-4"
+              className="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden cursor-pointer"
             >
               {/* Image */}
-              <div className="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-xl overflow-hidden shadow-md">
+              <div className="relative w-full h-44">
                 <img
                   src={service.image || "/cleaning-placeholder.png"}
                   alt={service.title}
                   className="w-full h-full object-cover"
                 />
+                {service.discount && (
+                  <span className="absolute top-3 left-3 bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
+                    {service.discount}
+                  </span>
+                )}
               </div>
 
-              {/* Details */}
-              <div className="flex-1">
-                <div className="flex flex-col sm:flex-row justify-between sm:items-center">
-                  <h3 className="font-bold text-gray-900 group-hover:text-[#5d7afc] text-base sm:text-lg">{service.title}</h3>
-                  <span className="text-xs px-2 py-1 mt-1 sm:mt-0 rounded-full bg-[#5d7afc]/20 text-[#5d7afc] font-medium self-start">
-                    {service.category}
-                  </span>
-                </div>
-                <p className="text-gray-600 text-sm mt-1">{service.description}</p>
+              {/* Content */}
+              <div className="p-4 flex flex-col justify-between h-full">
+                <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">
+                  {service.title}
+                </h3>
+                <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                  {typeof service.description === "string"
+                    ? service.description
+                    : Array.isArray(service.description)
+                    ? service.description.join(", ")
+                    : ""}
+                </p>
 
-                <div className="flex flex-col sm:flex-row justify-between sm:items-center mt-3 gap-2">
-                  <div>
-                    <span className="text-lg font-bold text-green-600">₹{service.price}</span>
+                {/* Price & Rating */}
+                <div className="flex items-center justify-between mt-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-green-600">
+                      ₹{service.price}
+                    </span>
+                    {service.originalPrice && (
+                      <span className="line-through text-gray-400 text-sm">
+                        ₹{service.originalPrice}
+                      </span>
+                    )}
                   </div>
-                  <button
-                    onClick={() => addToCart(service)}
-                    className="px-4 py-2 rounded-xl bg-[#5d7afc] text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 ease-in-out text-sm"
-                  >
-                    Add
-                  </button>
+                  <div className="text-xs text-gray-500 flex items-center gap-1">
+                    ⭐{" "}
+                    {typeof service.rating === "number"
+                      ? service.rating.toFixed(1)
+                      : service.rating?.average || "4.8"}
+                  </div>
                 </div>
+
+                {/* Add button */}
+                {/* <button
+                  onClick={() => addToCart(service)}
+                  className="mt-3 px-4 py-2 rounded-xl bg-[#5d7afc] text-white font-medium shadow-md hover:shadow-lg transition-all duration-300 ease-in-out text-sm"
+                >
+                  Add to Cart
+                </button> */}
               </div>
             </div>
+             </Link>
           ))
         ) : (
-          <p className="text-gray-500">No Facial services found in this category.</p>
+          <p className="text-gray-500">
+            No facial services found in this category.
+          </p>
         )}
-      </div>
-
-      {/* Cart Sidebar */}
-      <div className="lg:col-span-3 space-y-6">
-        <div className="p-5 bg-gray-200 rounded-2xl shadow-md border border-gray-300">
-          <h3 className="text-lg font-bold text-gray-900 border-b pb-2">🛒 Your Cart</h3>
-          {cart.length === 0 ? (
-            <p className="text-gray-600 mt-3 italic">No items yet</p>
-          ) : (
-            <ul className="mt-3 space-y-3">
-              {cart.map((item, i) => (
-                <li key={i} className="flex justify-between items-center p-2 bg-white rounded-lg hover:bg-gray-100 transition text-sm">
-                  <div>
-                    <span className="block font-medium text-gray-900">{item.title}</span>
-                    <span className="text-xs font-semibold text-[#5d7afc]">₹{item.price}</span>
-                  </div>
-                  <button
-                    onClick={() => removeItem(i)}
-                    className="ml-3 text-xs px-3 py-1 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition"
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {cart.length > 0 && (
-            <Link href="/checkout">
-              <button className="mt-4 w-full py-2 bg-[#5d7afc] text-white rounded-xl font-medium shadow hover:shadow-lg transition-all duration-300 text-sm">
-                Checkout
-              </button>
-            </Link>
-          )}
-        </div>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { FaTrash } from 'react-icons/fa';
 
 export default function CartPage() {
   const [cartItems, setCartItems] = useState([]);
@@ -35,8 +36,6 @@ export default function CartPage() {
     }
   };
 
-  
-
   const removeItem = (index) => {
     const newCart = [...cartItems];
     newCart.splice(index, 1);
@@ -49,11 +48,11 @@ export default function CartPage() {
     if (coupon.trim().toUpperCase() === 'SAVE10') {
       setDiscount(0.1);
       localStorage.setItem('coupon', 'SAVE10');
-      setMessage('Coupon Applied!');
+      setMessage('✅ Coupon Applied!');
     } else {
       setDiscount(0);
       localStorage.removeItem('coupon');
-      setMessage('Invalid Coupon');
+      setMessage('❌ Invalid Coupon');
     }
     setTimeout(() => setMessage(''), 3000);
   };
@@ -63,72 +62,93 @@ export default function CartPage() {
   const total = subtotal + tax + DELIVERY_CHARGE - subtotal * discount;
 
   return (
-    <div className="min-h-screen mt-[65px] bg-gray-100 py-10 px-4 md:px-20">
-      <h1 className="text-3xl font-extrabold text-center text-gray-900 mb-10">🛒 Your Cart</h1>
+    <div className="min-h-screen mt-[70px] bg-gray-50 py-10 px-4 md:px-16 lg:px-24">
+      <h1 className="text-3xl md:text-4xl font-extrabold text-center text-gray-900 mb-10">
+        🛒 Your Cart
+      </h1>
 
+      {/* Message */}
       {message && (
-        <div className={`fixed top-4 left-1/2 -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg text-white font-semibold transition-opacity duration-300 ${message === 'Invalid Coupon' ? 'bg-red-500' : 'bg-[#5d7afc]'}`}>
+        <div
+          className={`fixed top-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl shadow-lg text-white font-semibold transition-all duration-300 ${
+            message.includes('Invalid') ? 'bg-red-500' : 'bg-green-600'
+          }`}
+        >
           {message}
         </div>
       )}
 
       {cartItems.length === 0 ? (
-        <div className="text-center text-gray-600 text-lg">Your cart is empty.</div>
+        <div className="text-center text-gray-600 text-lg">
+          Your cart is empty.{" "}
+          <Link href="/" className="text-[#5d7afc] font-semibold hover:underline">
+            Shop now
+          </Link>
+        </div>
       ) : (
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-10">
           {/* Cart Items */}
           <div className="md:col-span-2 space-y-6">
             {cartItems.map((item, index) => (
-              <div key={index} className="flex items-center bg-white shadow-lg rounded-2xl overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+              <div
+                key={index}
+                className="flex items-center bg-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-300"
+              >
                 <img
                   src={item.image || '/placeholder.png'}
                   alt={item.name}
-                  className="w-32 h-32 object-cover rounded-l-2xl"
+                  className="w-28 h-28 md:w-32 md:h-32 object-cover rounded-l-2xl"
                 />
                 <div className="flex-1 p-4">
-                  <h3 className="text-lg font-bold text-gray-900">{item.name}</h3>
-                  <p className="text-sm text-gray-600">{item.description || 'No description'}</p>
+                  <h3 className="text-lg font-semibold text-gray-900">{item.name}</h3>
+                  <p className="text-sm text-gray-500 line-clamp-2">
+                    {item.description || 'No description available'}
+                  </p>
                   {item.size && (
-                    <p className="text-sm text-gray-500 mt-1">
-                      Size: <span className="font-semibold text-gray-800">{item.size}</span>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Size: <span className="font-medium text-gray-800">{item.size}</span>
                     </p>
                   )}
-                  <p className="text-md text-[#5d7afc] font-bold mt-1">${item.price.toFixed(2)}</p>
+                  <p className="text-md text-[#5d7afc] font-bold mt-2">{item.price.toFixed(2)}</p>
                 </div>
                 <button
-                  className="px-4 text-sm font-semibold text-red-600 hover:text-red-800"
+                  className="px-4 text-red-500 hover:text-red-700"
                   onClick={() => removeItem(index)}
                 >
-                  Remove
+                  <FaTrash className="text-lg" />
                 </button>
               </div>
             ))}
           </div>
 
           {/* Order Summary */}
-          <div className="bg-white rounded-3xl shadow-lg p-6 flex flex-col justify-between">
+          {/* <div className="bg-white rounded-3xl shadow-xl p-6 flex flex-col justify-between sticky top-[80px] h-fit">
             <div>
-              <h2 className="text-xl font-bold mb-4 text-gray-900">Order Summary</h2>
-              <div className="flex justify-between mb-2 text-gray-700">
-                <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between mb-2 text-gray-700">
-                <span>Tax (18%)</span>
-                <span>${tax.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between mb-2 text-gray-700">
-                <span>Delivery</span>
-                <span>${DELIVERY_CHARGE.toFixed(2)}</span>
-              </div>
-              {discount > 0 && (
-                <div className="flex justify-between mb-2 text-green-600 font-semibold">
-                  <span>Coupon Discount</span>
-                  <span>− ${(subtotal * discount).toFixed(2)}</span>
+              <h2 className="text-xl font-bold mb-5 text-gray-900">Order Summary</h2>
+              <div className="space-y-3 text-gray-700">
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span>${subtotal.toFixed(2)}</span>
                 </div>
-              )}
-              <hr className="my-4 border-gray-300" />
-              <div className="flex justify-between font-bold text-lg text-gray-900">
+                <div className="flex justify-between">
+                  <span>Tax (18%)</span>
+                  <span>${tax.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Delivery</span>
+                  <span>${DELIVERY_CHARGE.toFixed(2)}</span>
+                </div>
+                {discount > 0 && (
+                  <div className="flex justify-between text-green-600 font-medium">
+                    <span>Coupon Discount</span>
+                    <span>− ${(subtotal * discount).toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+
+              <hr className="my-5 border-gray-300" />
+
+              <div className="flex justify-between font-bold text-xl text-gray-900">
                 <span>Total</span>
                 <span>${total.toFixed(2)}</span>
               </div>
@@ -137,8 +157,8 @@ export default function CartPage() {
             <div className="mt-6 flex flex-col gap-3">
               <input
                 type="text"
-                placeholder="Apply Coupon"
-                className="w-full px-4 py-2 border rounded-xl bg-gray-100 border-gray-300 text-gray-900 focus:border-[#5d7afc] focus:ring-2 focus:ring-[#5d7afc]/30 outline-none"
+                placeholder="Enter Coupon Code"
+                className="w-full px-4 py-2 border rounded-xl bg-gray-100 border-gray-300 text-gray-900 focus:border-[#5d7afc] focus:ring-2 focus:ring-[#5d7afc]/40 outline-none transition"
                 value={coupon}
                 onChange={(e) => {
                   setCoupon(e.target.value);
@@ -160,7 +180,7 @@ export default function CartPage() {
                 Proceed to Checkout
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
       )}
     </div>

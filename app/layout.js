@@ -3,6 +3,8 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import toast from "react-hot-toast";
+// import Loader from "@/components/Loader";
+import Loader from "@/components/Loader";
 import { Toaster } from "react-hot-toast";
 
 import SessionWrapper from "@/components/SessionWrapper";
@@ -33,8 +35,8 @@ export default function RootLayout({ children }) {
         <SessionWrapper>
         
   <Navbar />
-          <div className="min-h-screen bg-[#e3e6f3]">
-
+          <div className=" bg-[#e3e6f3]">
+  {/* <Loader /> */}
             {children}
               <Toaster position="top-right" reverseOrder={false} />
           </div>
