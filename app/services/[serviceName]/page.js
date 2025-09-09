@@ -116,7 +116,7 @@ export default function ServiceDetailPage() {
     fetchServices();
   }, [serviceName]);
     useEffect(() => {
-      const timer = setTimeout(() => setLoading(false), 2000);
+      const timer = setTimeout(() => setLoading(false), 400);
       return () => clearTimeout(timer);
     }, []);
   
