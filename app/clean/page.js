@@ -59,7 +59,7 @@ export default function CleaningPage() {
     if (saved) setCart(JSON.parse(saved));
   }, []);
     useEffect(() => {
-      const timer = setTimeout(() => setLoading(false), 2000);
+      const timer = setTimeout(() => setLoading(false), 400);
       return () => clearTimeout(timer);
     }, []);
   
