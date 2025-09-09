@@ -95,7 +95,7 @@ export default function Home() {
     fetchServices();
   }, []);
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 2000);
+    const timer = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(timer);
   }, []);
 
