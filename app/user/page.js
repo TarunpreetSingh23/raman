@@ -144,36 +144,51 @@ export default function ProfilePage() {
                   </div>
 
                   {/* Status & Actions */}
-                  <div className="flex justify-between items-center flex-wrap gap-2 pt-2">
-                    <p className="text-sm text-gray-300 flex items-center gap-1">
-                      Status:{" "}
-                      <span
-                        className={`font-bold uppercase text-xs tracking-wider px-2 py-1 rounded-full ${
-                          task.is_completed
-                            ? "bg-green-600/30 text-green-400"
-                            : task.is_approved
-                            ? "bg-blue-600/30 text-blue-400"
-                            : task.is_canceled
-                            ? "bg-red-600/30 text-red-400"
-                            : "bg-yellow-600/30 text-yellow-400 animate-pulse"
-                        }`}
-                      >
-                        {task.status}
-                      </span>
-                    </p>
+               <div className="flex justify-between items-center flex-wrap gap-2 pt-2">
+  <p className="text-sm text-gray-300 flex items-center gap-1">
+    Status:{" "}
+    <span
+      className={`font-bold uppercase text-xs tracking-wider px-2 py-1 rounded-full ${
+        task.is_completed
+          ? "bg-green-600/30 text-green-400"
+          : task.is_approved
+          ? "bg-blue-600/30 text-blue-400"
+          : task.is_canceled
+          ? "bg-red-600/30 text-red-400"
+          : "bg-yellow-600/30 text-yellow-400 animate-pulse"
+      }`}
+    >
+      {task.status}
+    </span>
+  </p>
 
-                    {!task.is_completed &&
-                      !task.is_canceled &&
-                      task.status !== "Accepted" &&
-                      task.status !== "Rejected" && (
-                        <button
-                          onClick={() => handleCancel(task.order_id)}
-                          className="bg-red-700/80 hover:bg-red-600 text-white text-xs px-4 py-1.5 rounded-lg shadow-md transition transform hover:scale-105 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300 ease-out"
-                        >
-                          Cancel Order
-                        </button>
-                      )}
-                  </div>
+  <div className="flex gap-2">
+    {/* Cancel Button */}
+    {!task.is_completed &&
+      !task.is_canceled &&
+      task.status !== "Accepted" &&
+      task.status !== "Rejected" && (
+        <button
+          onClick={() => handleCancel(task.order_id)}
+          className="bg-red-700/80 hover:bg-red-600 text-white text-xs px-4 py-1.5 rounded-lg shadow-md transition transform hover:scale-105 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300 ease-out"
+        >
+          Cancel Order
+        </button>
+      )}
+
+    {/* ✅ Add Review Button */}
+    {!task.is_completed && task.cart.length > 0 && (
+      <button
+        onClick={() => router.push(`/review/${task.order_id}`)
+}
+        className="bg-indigo-600/80 hover:bg-indigo-500 text-white text-xs px-4 py-1.5 rounded-lg shadow-md transition transform hover:scale-105 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300 ease-out"
+      >
+        Leave Review
+      </button>
+    )}
+  </div>
+</div>
+
 
                   {/* Items and Details - Collapsible/Expandable for smaller view? */}
                   {/* For now, keeping it visible but more compact */}

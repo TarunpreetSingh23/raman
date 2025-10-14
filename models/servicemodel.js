@@ -2,18 +2,22 @@ import mongoose from "mongoose";
 
 const serviceSchema = new mongoose.Schema(
   {
-    maincategory: {
+    // New unique ID based on business logic (CL/ED/WU + ID)
+    serviceId: {
       type: String,
-      required: true, // e.g., "Electrician", "Decoration"
+      required: true,
+      unique: true,
     },
-    category:{
-       type: String,
+    
+    // Aligns with the 'category' field in your JSON (e.g., "Cleaning", "Woman Services - Treatment")
+    category: {
+      type: String,
       required: true,
     },
 
     title: {
       type: String,
-      required: true, 
+      required: true,
     },
 
     description: {
@@ -23,31 +27,18 @@ const serviceSchema = new mongoose.Schema(
 
     price: {
       type: Number,
-      required: true, 
+      required: true,
     },
 
-    reviews: [
-      {
-        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // reference to User model
-        comment: { type: String },
-        rating: { type: Number, min: 1, max: 5 },
-        createdAt: { type: Date, default: Date.now },
-      },
-    ],
-
-    workers: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Worker", // worker IDs who can do this service
-      },
-    ],
-
-    averageRating: {
+    // Retained from your data structure, representing the service's base rating
+    rating: {
       type: Number,
       default: 0,
       min: 0,
       max: 5,
     },
+
+    // --- REMOVED: reviews, workers, and averageRating as they were not in the imported data structure ---
   },
   { timestamps: true }
 );

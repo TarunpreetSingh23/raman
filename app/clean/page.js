@@ -16,7 +16,8 @@ function PageLoader() {
         height={60}
         className="mb-6"
       />
-      <div className="w-36 h-1 absolute top-[433px] left-[124px] bg-gray-700 rounded overflow-hidden">
+      {/* Centered loader bar */}
+      <div className="w-48 h-1 bg-gray-700 rounded overflow-hidden">
         <div className="h-full bg-[#3ab4ff] animate-loaderLine"></div>
       </div>
     </div>
@@ -181,7 +182,7 @@ const removeFromCart = (id) => {
             ✨ {selectedCategory} Services
           </h1> */}
           <div className="flex gap-2 flex-wrap w-full justify-center">
-            {["All", "Home", "Office", "Special"].map((cat) => (
+            {["All", "Home", "Bathroom","Kitchen", "Special"].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
