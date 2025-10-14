@@ -97,24 +97,41 @@ export default function ServiceDetailPage() {
 
   // ⭐ Fetch services
   useEffect(() => {
-    async function fetchServices() {
-      try {
-        const res = await fetch("/api/services");
-        const data = await res.json();
-        const list = Array.isArray(data) ? data : data.services || [];
-        setServices(list);
+  const fetchServices = async () => {
+    try {
+      const res = await fetch("/api/services");
+      if (!res.ok) throw new Error("Network response was not ok");
+      
+      const data = await res.json();
+      console.log("Raw API response:", data);
 
-        const normalize = (str) => str?.toLowerCase().replace(/[\s-]+/g, "") || "";
-        const found = list.find((s) => normalize(s.title) === normalize(decodedServiceName));
-        setSelected(found);
-      } catch (err) {
-        console.error("Fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
+      const list = Array.isArray(data) ? data : data.services || [];
+      console.log("Parsed service list:", list);
+
+      setServices(list);
+
+      const normalize = (str) => str?.toLowerCase().replace(/[\s-]+/g, "") || "";
+
+      // decode once safely
+      const decodedName = decodeURIComponent(serviceName || "").trim();
+      console.log("Decoded name:", decodedName);
+
+      const found = list.find(
+        (s) => normalize(s.title) === normalize(decodedName)
+      );
+
+      console.log("Matched service:", found);
+      setSelected(found);
+    } catch (err) {
+      console.error("Fetch error:", err);
+    } finally {
+      setLoading(false);
     }
-    fetchServices();
-  }, [serviceName]);
+  };
+
+  fetchServices();
+}, [serviceName]);
+
     useEffect(() => {
       const timer = setTimeout(() => setLoading(false), 400);
       return () => clearTimeout(timer);

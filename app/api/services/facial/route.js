@@ -7,7 +7,7 @@ import Service from "@/models/servicemodel";
 export async function GET() {
   try {
     await connects();
-    const services = await Service.find({category:"Makeup"});
+    const services = await Service.find({category:"Woman Services"});
     console.log(services)
     return NextResponse.json(services, { status: 200 });
   } catch (error) {

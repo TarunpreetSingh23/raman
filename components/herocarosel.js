@@ -1,106 +1,241 @@
 "use client";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 export default function Hero() {
-  const [active, setActive] = useState(0);
+  // --- Slide Data ---
+  const slides = [
+    {
+      title: "Cleaning Services",
+      subtitle: "Professional, reliable and spotless cleaning for your home.",
+      image: "/images/vee1.jpeg",
+      // ** New: Added dynamic background image **
+      bgImage: "/images/vee3.jpg", // REPLACE with your actual background path
+      gradient: "from-blue-400 to-cyan-500",
+      buttons: [{ text: "Book Cleaning", href: "/clean" }],
+    },
+    {
+      title: "Event Decor",
+      subtitle: "Turn your occasions into breathtaking memories with expert decor.",
+      image: "/images/event.png",
+      // ** New: Added dynamic background image **
+      bgImage: "/images/bg-event.jpg", // REPLACE with your actual background path
+      gradient: "from-purple-500 to-pink-500",
+      buttons: [{ text: "Book Decor", href: "/eventdecor" }],
+    },
+    {
+      title: "Beauty Services",
+      subtitle: "Pamper yourself with on-demand salon and spa treatments.",
+      image: "/images/vee2.jpeg",
+      // ** New: Added dynamic background image **
+      bgImage: "/images/bg-beauty.jpg", // REPLACE with your actual background path
+      gradient: "from-rose-400 to-pink-500",
+      buttons: [{ text: "Book Beauty", href: "/facial" }],
+    },
+  ];
 
-  // Rotate spotlight every 3 seconds
+  // --- State ---
+  const [current, setCurrent] = useState(0);
+  const [direction, setDirection] = useState(1);
+  const timeoutRef = useRef(null);
+
+  // --- Slide Handlers ---
+  const handleNext = () => {
+    setDirection(1);
+    setCurrent((prev) => (prev + 1) % slides.length);
+  };
+
+  const handlePrev = () => {
+    setDirection(-1);
+    setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+  
+  const handleDotClick = (index) => {
+      setDirection(index > current ? 1 : -1);
+      setCurrent(index);
+  }
+
+  // --- Auto Slide ---
   useEffect(() => {
-    const interval = setInterval(() => {
-      setActive((prev) => (prev + 1) % 3);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+    startAutoSlide();
+    return () => stopAutoSlide();
+  }, [current]);
+
+  const startAutoSlide = () => {
+    stopAutoSlide();
+    timeoutRef.current = setTimeout(() => {
+        setDirection(1); 
+        handleNext();
+    }, 3500); 
+  };
+
+  const stopAutoSlide = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+  };
+
+  const slide = slides[current];
+
+  // --- Motion Variants ---
+  // Background variants for a smooth fade
+  const backgroundVariants = {
+    enter: { opacity: 0, scale: 1.05 },
+    center: { opacity: 1, scale: 1, transition: { duration: 0.8 } },
+    exit: { opacity: 0, scale: 0.95, transition: { duration: 0.6 } },
+  };
+
+  // Text and Image variants remain the same for slide effect (omitted for brevity)
+  const textVariants = {
+    enter: (direction) => ({ x: direction > 0 ? -100 : 100, opacity: 0 }),
+    center: { zIndex: 1, x: 0, opacity: 1 },
+    exit: (direction) => ({ x: direction > 0 ? 100 : -100, opacity: 0, zIndex: 0 }),
+  };
+
+  const imageVariants = {
+    enter: (direction) => ({ x: direction > 0 ? 100 : -100, scale: 0.9, opacity: 0 }),
+    center: { zIndex: 1, x: 0, scale: 1, opacity: 1 },
+    exit: (direction) => ({ x: direction > 0 ? -100 : 100, scale: 0.9, opacity: 0, zIndex: 0 }),
+  };
+
 
   return (
-    <section
-      style={{ backgroundImage: "url('/images/bgmob.jpg')" }}
-      className="relative w-[100vw] h-[40vh] sm:h-[70vh] flex items-center  justify-center overflow-hidden px-4 sm:px-8 bg-cover bg-center"
+    <section 
+      // Removed static background style
+      className="relative w-full min-h-[80vh] mt-[76px] flex items-center justify-center overflow-hidden bg-gray-900 px-4 sm:px-8 py-16"
+      onMouseEnter={stopAutoSlide}
+      onMouseLeave={startAutoSlide}
     >
-      {/* Soft glowing background orbs */}
-      <div className="absolute -top-40 -left-40 w-64 sm:w-96 h-64 sm:h-96 bg-gradient-to-r from-indigo-200 to-gray-300 rounded-full blur-3xl opacity-40 animate-pulse" />
-      <div className="absolute bottom-0 right-0 w-64 sm:w-[500px] h-64 sm:h-[500px] bg-gradient-to-r from-gray-400 to-indigo-300 rounded-full blur-3xl opacity-30 animate-spin-slow" />
-
-      <div className="relative z-10 flex flex-col-reverse md:flex-row items-center gap-8 md:gap-12 w-full max-w-7xl">
-        {/* LEFT: Text */}
-        <motion.div
-          initial={{ opacity: 0, x: -40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className="flex-1 text-center mt-[1px] md:text-left"
-        >
-          <h1 className="text-3xl  sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight text-gray-900">
-            <span className="bg-gradient-to-r from-gray-50 to-gray-100 bg-clip-text text-transparent drop-shadow-sm">
-              Home Services,{" "}
-            </span>
-            <span className="bg-gradient-to-r from-gray-50 to-gray-100 bg-clip-text text-transparent">
-              One TAP Away
-            </span>
-          </h1>
-          <p className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg text-gray-100 max-w-md sm:max-w-lg mx-auto md:mx-0">
-            Book trusted{" "}
-            <span className="font-semibold text-gray-200">professionals</span>{" "}
-            for cleaning, repair, and more — right at your doorstep.
-          </p>
-
-          <div className="flex flex-wrap justify-center md:justify-start gap-3 sm:gap-4 mt-6 sm:mt-10">
-            <Link
-              href="haute"
-              className="flex items-center gap-2 px-5 sm:px-7 py-2 sm:py-3 rounded-full bg-[#2c55bb] text-white font-medium shadow-lg hover:shadow-xl hover:scale-105 transition"
+        {/*
+          New: Dynamic Background Layer
+          This motion.div handles the full-screen background image transition.
+        */}
+        <AnimatePresence initial={false} mode="wait">
+            <motion.div
+                key={slide.bgImage}
+                variants={backgroundVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                className="absolute inset-0 w-full h-full"
             >
-              Hire Now
-            </Link>
-            <Link
-              href="haute"
-              className="flex items-center gap-2 px-5 sm:px-7 py-2 sm:py-3 rounded-full bg-white/70 backdrop-blur-md border border-gray-300 text-gray-900 font-medium shadow hover:bg-white transition"
-            >
-              Explore Services
-            </Link>
-          </div>
-        </motion.div>
+                {/* Background Image */}
+                <Image
+                    src={slide.bgImage}
+                    alt={`${slide.title} background`}
+                    layout="fill"
+                    objectFit="cover"
+                    priority={true} // Priority loading for LCP element
+                    className="brightness-[.8] saturate-[.8]" // Darkens and slightly desaturates the image for better text contrast
+                />
+            </motion.div>
+        </AnimatePresence>
 
-        {/* RIGHT: Character Images with spotlight effect */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="flex-1 flex justify-center relative mt-6 md:mt-0"
-        >
-          <div className="relative w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl flex items-center justify-center">
-            {["/images/clean2.png", "/images/elec2.png", "/images/clean3.png"].map(
-              (src, i) => (
-                <motion.div
+      {/* Glowing background - Moved inside Main Content area for better layering */}
+      {/* <div className="absolute -top-40 -left-40 w-196 h-196 bg-gradient-to-br from-indigo-800 to-transparent rounded-full blur-3xl opacity-20 animate-pulse" />
+      <div className="absolute -bottom-40 -right-40 w-126 h-126 bg-gradient-to-tl from-pink-600 to-transparent rounded-full blur-3xl opacity-20 animate-spin-slow" /> */}
+
+      {/* Main Content */}
+      {/* <div className="relative z-10 flex flex-col-reverse md:flex-row items-center gap-12 w-full max-w-7xl pt-16 pb-24">
+      
+        <AnimatePresence initial={false} mode="wait" custom={direction}>
+          <motion.div
+            key={current}
+            custom={direction}
+            variants={textVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.6 }}
+            className="flex-1 text-center md:text-left md:pr-12"
+          >
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold leading-tight text-white mb-6">
+              {slide.title.split(" ")[0]}{" "}
+              <span
+                className={`text-transparent bg-clip-text bg-gradient-to-r ${slide.gradient}`}
+              >
+                {slide.title.split(" ").slice(1).join(" ")}
+              </span>
+            </h1>
+            <p className="mt-4 text-lg text-gray-300 max-w-lg mx-auto md:mx-0">
+              {slide.subtitle}
+            </p>
+
+            <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-10">
+              {slide.buttons.map((btn, i) => (
+                <Link
                   key={i}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{
-                    opacity: active === i ? 1 : 0,
-                    scale: active === i ? 1 : 0.96,
-                  }}
-                  transition={{ duration: 0.8 }}
-                  className="absolute"
+                  href={btn.href}
+                  className={`px-8 py-4 rounded-full ${
+                    i === 0
+                      ? "bg-white text-gray-900 hover:bg-gray-200"
+                      : "bg-transparent border border-white text-white hover:border-gray-300 hover:text-gray-300"
+                  } font-medium shadow-lg transition-all duration-300`}
                 >
-                  <Image
-                    src={src}
-                    alt="Service"
-                    width={300}
-                    height={300}
-                    className="drop-shadow-2xl rounded-2xl sm:rounded-3xl"
-                    sizes="(max-width: 640px) 80vw, (max-width: 1024px) 50vw, 540px"
-                  />
-                </motion.div>
-              )
-            )}
-          </div>
-        </motion.div>
+                  {btn.text}
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        
+        <AnimatePresence initial={false} mode="wait" custom={direction}>
+          <motion.div
+            key={current}
+            custom={direction}
+            variants={imageVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.6 }}
+            className="flex-1 flex justify-center relative w-full h-[300px] md:h-[400px] mt-12 md:mt-0"
+          >
+            <Image
+              src={slide.image}
+              alt={slide.title}
+              layout="fill"
+              objectFit="contain"
+              className="absolute z-10 w-full drop-shadow-2xl"
+            />
+          </motion.div>
+        </AnimatePresence>
+      </div> */}
+
+      {/* Controls */}
+      <div className="absolute bottom-8 left-0 w-full flex justify-center items-center gap-6 z-20">
+        <button
+          onClick={handlePrev}
+          className="p-3 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors"
+          aria-label="Previous slide"
+        >
+          <FaChevronLeft className="text-white text-lg" />
+        </button>
+
+        {/* Indicators */}
+        <div className="flex gap-2">
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => handleDotClick(i)}
+              className={`w-3 h-3 rounded-full transition-all ${
+                i === current ? "bg-white scale-110" : "bg-gray-500"
+              }`}
+            />
+          ))}
+        </div>
+
+        <button
+          onClick={handleNext}
+          className="p-3 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors"
+          aria-label="Next slide"
+        >
+          <FaChevronRight className="text-white text-lg" />
+        </button>
       </div>
 
-      {/* Subtle bottom gradient overlay */}
-      {/* <div className="absolute bottom-0 w-full h-24 sm:h-22 bg-gradient-to-t from-gray-200 via-gray-100 to-transparent" /> */}
-
-      {/* Animations */}
+      {/* Animation styles */}
       <style jsx global>{`
         .animate-spin-slow {
           animation: spin 25s linear infinite;

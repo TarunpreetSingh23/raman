@@ -1,197 +1,180 @@
 "use client";
+
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function ContactSection() {
-    const {data:session}=useSession();
-    const router=useRouter();
-    const [services, setServices] = useState([]);
-    const [loading, setloading] = useState(true);
-    const [form, setForm] = useState({ firstName: "", lastName: "", email: "", message: "" });
-    // const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState(null);
-    const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", message: "" });
+  const [success, setSuccess] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setloading(true);
+    setLoading(true);
     setSuccess(null);
-
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-
       const data = await res.json();
       if (data.success) {
         setSuccess("Message sent successfully 🎉");
-        router.push("/");
         setForm({ firstName: "", lastName: "", email: "", message: "" });
         router.push("/");
-      } else {
-        setSuccess("Something went wrong ❌");
-      }
-    } catch (error) {
+      } else setSuccess("Something went wrong ❌");
+    } catch {
       setSuccess("Server error ❌");
     } finally {
-      setloading(false);
+      setLoading(false);
     }
   };
+
   return (
-   <section className="relative py-28 bg-gradient-to-r from-gray-100 via-white to-gray-100 overflow-hidden">
-  {/* Floating Background Shapes */}
-  <div className="absolute inset-0 overflow-hidden">
-    <div className="absolute w-40 h-40 bg-[#5d7afc]/20 rounded-full blur-3xl top-10 left-20 animate-pulse"></div>
-    <div className="absolute w-56 h-56 bg-gray-400/20 rounded-full blur-3xl bottom-20 right-32 animate-pulse"></div>
-    <div className="absolute w-28 h-28 bg-[#5d7afc]/30 rounded-full blur-2xl top-1/3 left-1/2 animate-bounce"></div>
-  </div>
+    <section className="relative py-28 bg-gradient-to-br from-[#002366] via-gray-900 to-black text-white overflow-hidden">
+      {/* 🌌 Floating Glow Orbs */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute w-80 h-80 bg-[#5d7afc]/20 rounded-full blur-3xl top-0 left-10 animate-pulse"></div>
+        <div className="absolute w-72 h-72 bg-indigo-400/10 rounded-full blur-3xl bottom-20 right-10 animate-pulse"></div>
+        <div className="absolute w-56 h-56 bg-blue-500/20 rounded-full blur-2xl top-1/2 left-1/3 animate-bounce"></div>
+      </div>
 
-  <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
-    {/* Title */}
-    <h2 className="text-5xl md:text-6xl font-extrabold text-center mb-16 bg-clip-text text-transparent bg-[#5d7afc] drop-shadow-sm">
-      Let’s Connect
-    </h2>
-
-    <div className="grid md:grid-cols-2 gap-10">
-      {/* Contact Form */}
-      <motion.div
-        initial={{ opacity: 0, y: 80 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="bg-white/90 backdrop-blur-md p-10 rounded-3xl shadow-lg border border-gray-200"
-      >
-        <h3 className="text-2xl font-bold mb-6 text-gray-900">Get in Touch</h3>
-        <form
-          className="flex flex-col gap-5"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            const firstName = e.target.firstName.value;
-            const lastName = e.target.lastName.value;
-            const email = e.target.email.value;
-            const message = e.target.message.value;
-
-            try {
-              const res = await fetch("/api/contact", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ firstName, lastName, email, message }),
-              });
-
-              const data = await res.json();
-              if (data.success) {
-                alert("Message sent successfully 🎉");
-                e.target.reset();
-              } else {
-                alert(data.message || "Something went wrong ❌");
-              }
-            } catch (err) {
-              alert("Server error ❌");
-            }
-          }}
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+        {/* Section Title */}
+        <motion.h2
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-5xl md:text-6xl font-extrabold text-center mb-16 bg-gradient-to-r from-blue-300 via-white to-blue-300 bg-clip-text text-transparent drop-shadow-sm"
         >
-          <div className="grid grid-cols-2 gap-4">
-            <input
-              type="text"
-              name="firstName"
-              placeholder="First Name"
-              required
-              className="w-full p-3 rounded-xl bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:border-[#5d7afc] focus:ring-2 focus:ring-[#5d7afc]/40 outline-none"
-            />
-            <input
-              type="text"
-              name="lastName"
-              placeholder="Last Name"
-              required
-              className="w-full p-3 rounded-xl bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:border-[#5d7afc] focus:ring-2 focus:ring-[#5d7afc]/40 outline-none"
-            />
-          </div>
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            required
-            className="w-full p-3 rounded-xl bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:border-[#5d7afc] focus:ring-2 focus:ring-[#5d7afc]/40 outline-none"
-          />
-          <textarea
-            name="message"
-            placeholder="Your Message..."
-            rows={4}
-            required
-            className="w-full p-3 rounded-xl bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:border-[#5d7afc] focus:ring-2 focus:ring-[#5d7afc]/40 outline-none"
-          />
-          <button className="mt-2 bg-gradient-to-r from-[#5d7afc] to-blue-600 text-white font-semibold py-3 rounded-xl hover:scale-105 transition-transform shadow-md">
-            Submit
-          </button>
-        </form>
-      </motion.div>
+          Let’s Connect
+        </motion.h2>
 
-      {/* Newsletter */}
-      <motion.div
-        initial={{ opacity: 0, y: 80 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-        className="bg-gray-900 p-10 rounded-3xl shadow-lg border border-gray-700"
-      >
-        <h3 className="text-2xl font-bold mb-6 text-white">
-          Subscribe to Our Newsletter
-        </h3>
-        <form
-          className="flex flex-col gap-4"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            const email = e.target.email.value;
-            const subscribed = e.target.subscribed.checked;
+        <div className="grid md:grid-cols-2 gap-12">
+          {/* Contact Form */}
+          <motion.div
+            initial={{ opacity: 0, y: 80 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="bg-white/10 backdrop-blur-md border border-white/20 p-10 rounded-3xl shadow-2xl hover:shadow-blue-500/20 transition-all duration-300"
+          >
+            <h3 className="text-2xl font-semibold mb-6 text-blue-100">Send a Message</h3>
 
-            try {
-              const res = await fetch("/api/newsletter", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, subscribed }),
-              });
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <div className="grid grid-cols-2 gap-4">
+                <input
+                  type="text"
+                  name="firstName"
+                  placeholder="First Name"
+                  required
+                  value={form.firstName}
+                  onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                  className="w-full p-3 rounded-xl bg-white/20 border border-white/30 text-white placeholder-gray-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/40 outline-none"
+                />
+                <input
+                  type="text"
+                  name="lastName"
+                  placeholder="Last Name"
+                  required
+                  value={form.lastName}
+                  onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                  className="w-full p-3 rounded-xl bg-white/20 border border-white/30 text-white placeholder-gray-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/40 outline-none"
+                />
+              </div>
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                required
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                className="w-full p-3 rounded-xl bg-white/20 border border-white/30 text-white placeholder-gray-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/40 outline-none"
+              />
+              <textarea
+                name="message"
+                placeholder="Your Message..."
+                rows={4}
+                required
+                value={form.message}
+                onChange={(e) => setForm({ ...form, message: e.target.value })}
+                className="w-full p-3 rounded-xl bg-white/20 border border-white/30 text-white placeholder-gray-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/40 outline-none"
+              />
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                disabled={loading}
+                className="mt-2 bg-gradient-to-r from-blue-500 to-[#5d7afc] text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-blue-500/30 transition-all duration-300"
+              >
+                {loading ? "Sending..." : "Send Message"}
+              </motion.button>
+            </form>
 
-              const data = await res.json();
-              if (data.success) {
-                alert("Subscribed successfully 🎉");
-                e.target.reset();
-              } else {
-                alert(data.message || "Something went wrong ❌");
-              }
-            } catch (err) {
-              alert("Server error ❌");
-            }
-          }}
-        >
-          <input
-            type="email"
-            name="email"
-            placeholder="Your Email"
-            required
-            className="w-full p-3 rounded-xl bg-gray-100 border border-gray-300 text-gray-900 placeholder-gray-500 focus:border-[#5d7afc] focus:ring-2 focus:ring-[#5d7afc]/40 outline-none"
-          />
-          <div className="flex items-center gap-2 text-gray-300 text-sm">
-            <input
-              type="checkbox"
-              name="subscribed"
-              defaultChecked
-              className="w-4 h-4 accent-[#5d7afc]"
-            />
-            <span>Yes, subscribe me to your newsletter.</span>
-          </div>
-          <button className="mt-2 bg-gradient-to-r from-[#5d7afc] to-blue-600 text-white font-semibold py-3 rounded-xl hover:scale-105 transition-transform shadow-md">
-            Join
-          </button>
-        </form>
-      </motion.div>
-    </div>
-  </div>
-</section>
+            {success && (
+              <p className="mt-4 text-center text-sm text-blue-200 font-medium">{success}</p>
+            )}
+          </motion.div>
+
+          {/* Newsletter / Info */}
+          <motion.div
+            initial={{ opacity: 0, y: 80 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+            className="bg-gradient-to-br from-gray-800 via-[#002366] to-gray-900 p-10 rounded-3xl shadow-2xl border border-white/10"
+          >
+            <h3 className="text-2xl font-semibold mb-4 text-white">
+              Stay Updated with Sparky
+            </h3>
+            <p className="text-gray-300 mb-6 leading-relaxed">
+              Get exclusive updates, service discounts, and expert tips directly in your inbox.
+            </p>
+
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const email = e.target.email.value;
+                try {
+                  const res = await fetch("/api/newsletter", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email }),
+                  });
+                  const data = await res.json();
+                  if (data.success) {
+                    alert("Subscribed successfully 🎉");
+                    e.target.reset();
+                  } else alert("Something went wrong ❌");
+                } catch {
+                  alert("Server error ❌");
+                }
+              }}
+              className="flex flex-col gap-4"
+            >
+              <input
+                type="email"
+                name="email"
+                placeholder="Your Email"
+                required
+                className="w-full p-3 rounded-xl bg-white/20 border border-white/30 text-white placeholder-gray-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/40 outline-none"
+              />
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-gradient-to-r from-[#5d7afc] to-blue-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-blue-500/30 transition-all"
+              >
+                Join Newsletter
+              </motion.button>
+            </form>
+          </motion.div>
+        </div>
+      </div>
+    </section>
   );
 }

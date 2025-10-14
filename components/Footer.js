@@ -1,6 +1,8 @@
 "use client";
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   return (
@@ -22,9 +24,15 @@ export default function Footer() {
           transition={{ duration: 0.8 }}
           className="text-center mb-14"
         >
-          <span className="px-4 py-2 bg-gradient-to-b from-blue-500 via-blue-500 to-blue-500  rounded-xl text-white font-bold text-lg">
-            Sparky
-          </span>
+          <Link href="/" className="flex items-center justify-center">
+            <Image
+               src="/images/LOGO (2).jpg" // Your original logo
+            alt="Logo"
+            width={170}
+            height={30}
+            className="rounded-2xl shadow-md"
+          />
+          </Link>
           <p className="mt-4 text-xl md:text-3xl font-light text-gray-800 text-bold">
             Quick.Trusted
           </p>
@@ -42,15 +50,15 @@ export default function Footer() {
             <ul className="space-y-3 text-gray-800">
               <li className="flex items-center gap-2">
                 <Mail size={18} className="text-pink-400" />
-                info@mysite.com
+                N.A
               </li>
               <li className="flex items-center gap-2">
                 <Phone size={18} className="text-yellow-400" />
-                +1 (123) 456-7890
+                +1  N.A
               </li>
               <li className="flex items-center gap-2">
                 <MapPin size={18} className="text-indigo-400" />
-                500 Terry Francine St, San Francisco, CA
+                Amritsar,Punjab
               </li>
             </ul>
           </motion.div>
@@ -64,21 +72,18 @@ export default function Footer() {
           >
             <h3 className="text-xl font-bold mb-4 text-gray-800">Navigation</h3>
             <ul className="grid grid-cols-2 gap-3 text-gray-800">
-              <li><a href="#" className="hover:text-pink-400 transition">Games</a></li>
-              <li><a href="#" className="hover:text-pink-400 transition">Careers</a></li>
-              <li><a href="#" className="hover:text-pink-400 transition">About</a></li>
-              <li><a href="#" className="hover:text-pink-400 transition">Contact</a></li>
-              <li><a href="#" className="hover:text-pink-400 transition">Accessibility</a></li>
-              <li><a href="#" className="hover:text-pink-400 transition">Terms & Conditions</a></li>
-              <li><a href="#" className="hover:text-pink-400 transition">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-pink-400 transition">Refund Policy</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition">About</a></li>
+              <li><a href="#" className="hover:text-blue-400 transition">Contact</a></li>
+              <li><a href="/t&c" className="hover:text-blue-400 transition">Terms & Conditions</a></li>
+              <li><a href="/privacy" className="hover:text-blue-400 transition">Privacy Policy</a></li>
+              <li><a href="/refund" className="hover:text-blue-400 transition">Refund Policy</a></li>
             </ul>
           </motion.div>
         </div>
 
         {/* Bottom Bar */}
         <div className="mt-12 border-t border-gray-700 pt-6 text-center text-gray-800 text-sm">
-          © {new Date().getFullYear()} Tripo Games. All rights reserved.
+          © {new Date().getFullYear()} Sparky. All rights reserved.
         </div>
       </div>
     </footer>

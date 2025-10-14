@@ -33,9 +33,9 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SessionWrapper>
-        
+    {/* bg-[#e3e6f3]     */}
   <Navbar />
-          <div className=" bg-[#e3e6f3]">
+          <div className="bg-gray-50 ">
   {/* <Loader /> */}
             {children}
               <Toaster position="top-right" reverseOrder={false} />

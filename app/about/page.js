@@ -1,122 +1,154 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { FaUsers, FaStar, FaRocket, FaHandshake } from "react-icons/fa";
+import React from 'react';
+import { motion } from 'framer-motion';
 
-export default function AboutPage() {
-  const timeline = [
-    {
-      year: "2020",
-      title: "The Spark",
-      desc: "Our journey began with a simple vision — to make trusted home services quick and reliable.",
-      icon: <FaRocket />,
-    },
-    {
-      year: "2021",
-      title: "Growing Trust",
-      desc: "Thousands of happy customers started relying on us for everyday services.",
-      icon: <FaUsers />,
-    },
-    {
-      year: "2022",
-      title: "Recognition",
-      desc: "We achieved top ratings and became a household name in service excellence.",
-      icon: <FaStar />,
-    },
-    {
-      year: "2023",
-      title: "Future Forward",
-      desc: "Expanding into new cities, building partnerships, and aiming for global trust.",
-      icon: <FaHandshake />,
-    },
-  ];
+// === ICONS ===
+const CheckCircleIcon = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+    <polyline points="22 4 12 14.01 9 11.01" />
+  </svg>
+);
+
+const ShieldIcon = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  </svg>
+);
+
+const StarIcon = (props) => (
+  <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+  </svg>
+);
+
+export default function AboutUs() {
+
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.2 } }
+  };
+
+  const brandBlue = "#002366";
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-blue-100 via-blue-200 to-blue-400 text-gray-900 overflow-hidden">
-      {/* Floating shapes */}
-      <motion.div
-        className="absolute top-20 left-20 w-72 h-72 bg-blue-300/40 rounded-full blur-3xl"
-        animate={{ y: [0, 40, 0], x: [0, -30, 0] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl"
-        animate={{ y: [0, -40, 0], x: [0, 30, 0] }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-      />
-
+    <div className="bg-gray-50 font-sans text-gray-900">
       {/* Hero Section */}
-      <section className="relative text-center py-24 z-10">
-        <motion.h1
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="text-5xl md:text-7xl font-extrabold tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400"
+      <section className="relative overflow-hidden py-24 sm:py-32 bg-gradient-to-br from-[#002366] to-gray-900 text-white">
+        <motion.div 
+          className="max-w-7xl mx-auto px-6 text-center"
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
         >
-          About Us
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 1 }}
-          className="mt-6 text-lg md:text-xl max-w-3xl mx-auto text-gray-700"
-        >
-          We are not just a service platform. We are a movement — simplifying lives, one trusted service at a time.
-        </motion.p>
+          <motion.h1 variants={fadeInUp} className="text-5xl md:text-6xl font-extrabold">About Sparky</motion.h1>
+          <motion.p variants={fadeInUp} className="mt-6 max-w-2xl mx-auto text-lg text-gray-300">
+            Connecting you with trusted, skilled professionals for all your home service needs. 
+            We are committed to quality, safety, and reliability.
+          </motion.p>
+        </motion.div>
       </section>
 
-      {/* Timeline */}
-      <section className="relative max-w-5xl mx-auto px-6 py-16 z-10">
-        <div className="grid gap-12">
-          {timeline.map((item, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="relative flex items-start gap-6 bg-white/80 backdrop-blur-lg border border-blue-200 shadow-lg rounded-2xl p-6"
-            >
-              <div className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-r from-blue-500 to-blue-400 text-white text-xl shadow-md">
-                {item.icon}
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold text-blue-500">{item.year}</h3>
-                <h4 className="text-xl font-bold mt-1 text-gray-900">{item.title}</h4>
-                <p className="text-gray-700 mt-2">{item.desc}</p>
-              </div>
-            </motion.div>
-          ))}
+      {/* Mission Section */}
+      <motion.section 
+        className="py-20 sm:py-28"
+        initial="hidden"
+        whileInView="visible"
+        variants={staggerContainer}
+        viewport={{ once: true, amount: 0.5 }}
+      >
+        <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-14 items-center">
+          <motion.div variants={fadeInUp}>
+            <h2 className="text-3xl font-semibold text-gray-900 border-l-4 border-[#002366] pl-4">Our Mission</h2>
+            <p className="mt-4 text-gray-600 leading-relaxed">
+              Our mission is to simplify home services by creating a seamless, transparent, and trustworthy platform.
+              We empower local technicians to grow their business while ensuring customers receive top-tier service every time.
+              We believe in building a community based on respect, integrity, and excellence.
+            </p>
+          </motion.div>
+
+          <motion.div 
+            variants={fadeInUp} 
+            className="bg-white shadow-lg p-8 rounded-2xl border border-gray-200 hover:shadow-xl transition-all"
+          >
+            <h3 className="text-2xl font-semibold text-[#002366]">Our Vision</h3>
+            <p className="mt-3 text-gray-600 leading-relaxed">
+              To become India’s most trusted home services platform, known for our unwavering commitment 
+              to quality, reliability, and customer satisfaction.
+            </p>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* Vision Section */}
-      <section className="relative text-center py-20 px-6 z-10">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8 }}
-          className="max-w-4xl mx-auto bg-white/80 backdrop-blur-md border border-blue-200 rounded-3xl shadow-xl p-10"
+      {/* Why Choose Us */}
+      <section className="bg-gray-100 py-20 border-y border-gray-200">
+        <motion.div 
+          className="max-w-7xl mx-auto px-6"
+          initial="hidden"
+          whileInView="visible"
+          variants={staggerContainer}
+          viewport={{ once: true, amount: 0.3 }}
         >
-          <h2 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400">
-            Our Vision
-          </h2>
-          <p className="mt-6 text-gray-700 text-lg leading-relaxed">
-            To create a world where people never worry about daily services — because help is always just one tap away.
-          </p>
+          <div className="text-center">
+            <motion.h2 variants={fadeInUp} className="text-3xl font-semibold text-gray-900">Why Choose Sparky?</motion.h2>
+            <motion.p variants={fadeInUp} className="mt-4 max-w-2xl mx-auto text-gray-600">
+              We go the extra mile to ensure your peace of mind.
+            </motion.p>
+          </div>
+
+          <motion.div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-8" variants={staggerContainer}>
+            {[
+              { Icon: ShieldIcon, title: "Verified Professionals", desc: "Every technician undergoes a rigorous verification process, including background checks, for your safety." },
+              { Icon: CheckCircleIcon, title: "Quality Guarantee", desc: "We’re committed to excellence. If you're not satisfied, we’ll make it right through our rework and support policy." },
+              { Icon: StarIcon, title: "Transparent Pricing", desc: "No hidden fees. All costs are clear upfront, so you know exactly what you’re paying for." }
+            ].map(({ Icon, title, desc }, i) => (
+              <motion.div 
+                key={i}
+                variants={fadeInUp}
+                whileHover={{ scale: 1.05, y: -5 }}
+                className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all"
+              >
+                <div className="flex items-center justify-center h-14 w-14 rounded-full bg-[#002366]/10 mb-4">
+                  <Icon className="h-7 w-7" style={{ color: brandBlue }}/>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900">{title}</h3>
+                <p className="mt-2 text-gray-600 leading-relaxed">{desc}</p>
+              </motion.div>
+            ))}
+          </motion.div>
         </motion.div>
       </section>
 
       {/* CTA Section */}
-      <section className="relative py-20 px-6 text-center z-10">
-        <motion.button
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.95 }}
-          className="px-10 py-4 text-lg font-bold rounded-full shadow-lg bg-gradient-to-r from-blue-500 to-blue-400 text-white hover:shadow-xl transition"
-        >
-          Join Our Journey 🚀
-        </motion.button>
-      </section>
+      <motion.section 
+        className="py-24 bg-gradient-to-r from-[#002366] to-gray-900 text-white text-center"
+        initial="hidden"
+        whileInView="visible"
+        variants={fadeInUp}
+        viewport={{ once: true, amount: 0.5 }}
+      >
+        <div className="max-w-4xl mx-auto px-6">
+          <h2 className="text-4xl font-bold">Ready to Experience the Sparky Difference?</h2>
+          <p className="mt-4 text-gray-300 text-lg">
+            Book a trusted professional in minutes and get your to-do list done with confidence.
+          </p>
+          <div className="mt-8">
+            <motion.button 
+              whileHover={{ scale: 1.08 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-white text-[#002366] font-semibold py-3 px-8 rounded-lg shadow-md hover:shadow-xl transition-all duration-300"
+            >
+              Book a Service
+            </motion.button>
+          </div>
+        </div>
+      </motion.section>
     </div>
   );
 }

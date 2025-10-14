@@ -54,14 +54,15 @@ const TaskSchema = new mongoose.Schema({
 // 🔥 Generate order_id + assign workers before saving
 TaskSchema.pre("save", async function (next) {
   if (!this.order_id) {
-    let prefix = "OR";
-    const category = this.cart?.[0]?.category;
+    let prefix="OR";
+     const category = this.cart?.[0]?.category?.toLowerCase()?.trim();
 
-    if (category) {
-      if (category.toLowerCase() === "makeup") prefix = "MU";
-      else if (category.toLowerCase() === "decor") prefix = "ED";
-      else if (category.toLowerCase() === "cleaning") prefix = "CL";
-    }
+   console.log(category);
+         if (category?.includes("woman")) prefix = "MU";
+    else if (category?.includes("event")) prefix = "ED";
+    else if (category?.includes("Clean")) prefix = "CL";
+
+    
 
     this.order_id = `${prefix}${Math.floor(1000 + Math.random() * 9000)}`;
 

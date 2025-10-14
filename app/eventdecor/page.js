@@ -1,209 +1,406 @@
 "use client";
-import Link from "next/link";
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
+import { CheckCircle, X, ShoppingCart, Filter, Eye } from "lucide-react";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 
-// 🎉 Dummy Event Decor Services (replace with DB later)
-const eventServices = [
-  { id: 1, category: "Weddings", name: "Royal Wedding Décor", desc: "Luxurious floral & lighting setup", price: 49999, oldPrice: 59999 },
-  { id: 2, category: "Weddings", name: "Beachside Wedding Décor", desc: "Elegant seaside experience", price: 69999, oldPrice: 79999 },
-  { id: 3, category: "Birthdays", name: "Kids Birthday Theme", desc: "Cartoon & balloon decorations", price: 9999, oldPrice: 12999 },
-  { id: 4, category: "Birthdays", name: "Luxury Birthday Décor", desc: "Premium indoor/outdoor setup", price: 14999, oldPrice: 17999 },
-  { id: 5, category: "Corporate", name: "Conference Setup", desc: "Professional stage & branding", price: 24999, oldPrice: 29999 },
-  { id: 6, category: "Corporate", name: "Annual Party Décor", desc: "Fun + classy décor for corporates", price: 34999, oldPrice: 39999 },
-  { id: 7, category: "Parties", name: "Bachelor Party Setup", desc: "Trendy & cool decoration themes", price: 15999, oldPrice: 18999 },
-];
+function PageLoader() {
+  return (
+    <div className="fixed inset-0 flex flex-col items-center justify-center bg-gray-900 z-50">
+      <Image
+        src="/images/LOGO (2).jpg"
+        alt="Logo"
+        width={180}
+        height={60}
+        className="mb-6"
+      />
+      <div className="w-36 h-1 absolute top-[433px] left-[124px] bg-gray-700 rounded overflow-hidden">
+        <div className="h-full bg-[#3ab4ff] animate-loaderLine"></div>
+      </div>
+    </div>
+  );
+}
 
-const categories = ["All", "Weddings", "Birthdays", "Corporate", "Parties"];
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
 
-export default function EventDecorPage() {
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 100, damping: 10 },
+  },
+};
+
+export default function CleaningPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [services, setServices] = useState([]);
   const [cart, setCart] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedService, setSelectedService] = useState(null);
+  const [cartOpen, setCartOpen] = useState(false);
+  const router = useRouter();
 
-  // Remove from cart
-  const removeItem = (index) => {
-    const newCart = [...cart];
-    newCart.splice(index, 1);
-    setCart(newCart);
-    localStorage.setItem("cart", JSON.stringify(newCart));
-
-    if (newCart.length === 0) {
-      localStorage.removeItem("coupon");
-    }
-  };
-
-  // Load cart from localStorage
   useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const res = await fetch("/api/services/event");
+        const data = await res.json();
+        setServices(data);
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchServices();
     const saved = localStorage.getItem("cart");
-    if (saved) {
-      setCart(JSON.parse(saved));
-    }
+    if (saved) setCart(JSON.parse(saved));
   }, []);
 
-  // Filter services by category
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 400);
+
+    // const timer = setTimeout(() => setLoading(false), 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) return <PageLoader />;
+const removeFromCart = (id) => {
+  let existingCart = JSON.parse(localStorage.getItem("cart")) || [];
+  const updatedCart = existingCart.filter(item => item._id !== id);
+  localStorage.setItem("cart", JSON.stringify(updatedCart));
+  setCart(updatedCart);
+  
+  toast.error(
+    <div className="flex items-center gap-3">
+      <X className="text-white w-5 h-5" />
+      <span className="text-white font-medium">Item removed from cart ❌</span>
+    </div>,
+    {
+      style: {
+        background: "linear-gradient(to right, #ef4444, #b91c1c)",
+        color: "#fff",
+        borderRadius: "12px",
+        padding: "12px 18px",
+        boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+      },
+      icon: null,
+      duration: 3000,
+    }
+  );
+};
+
   const filteredServices =
     selectedCategory === "All"
-      ? eventServices
-      : eventServices.filter((s) => s.category === selectedCategory);
+      ? services
+      : services.filter((s) =>
+          s.title.toLowerCase().includes(selectedCategory.toLowerCase())
+        );
 
-  // Add to cart
-  const addToCart = (product) => {
-    const updated = [...cart, product];
-    setCart(updated);
-    localStorage.setItem("cart", JSON.stringify(updated));
+  const addToCart = (newItem) => {
+    let existingCart = JSON.parse(localStorage.getItem("cart")) || [];
+    if (existingCart.length > 0) {
+      const existingCategory = existingCart[0].category;
+      if (existingCategory !== newItem.category) {
+        const confirmReplace = window.confirm(
+          "Your cart already contains services from a different category. Replace it?"
+        );
+        if (confirmReplace) {
+          existingCart = [{ ...newItem, quantity: 1 }];
+          localStorage.setItem("cart", JSON.stringify(existingCart));
+          setCart(existingCart);
+          toast.success("Cart replaced!");
+        } else return;
+      } else {
+        const itemIndex = existingCart.findIndex(
+          (item) => item._id === newItem._id
+        );
+        if (itemIndex > -1) existingCart[itemIndex].quantity += 1;
+        else existingCart.push({ ...newItem, quantity: 1 });
+        localStorage.setItem("cart", JSON.stringify(existingCart));
+        setCart(existingCart);
+        successToast();
+      }
+    } else {
+      existingCart.push({ ...newItem, quantity: 1 });
+      localStorage.setItem("cart", JSON.stringify(existingCart));
+      setCart(existingCart);
+      successToast();
+    }
   };
 
+  const successToast = () => {
+    toast.success(
+      <div className="flex items-center gap-3">
+        <CheckCircle className="text-white w-5 h-5" />
+        <span className="text-white font-medium">Item added to cart ✅</span>
+      </div>,
+      {
+        style: {
+          background: "linear-gradient(to right, #4ade80, #16a34a)",
+          color: "#fff",
+          borderRadius: "12px",
+          padding: "12px 18px",
+          boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+        },
+        icon: null,
+        duration: 3000,
+      }
+    );
+  };
+
+  const totalCartItems = cart.reduce(
+    (sum, item) => sum + (item.quantity || 1),
+    0
+  );
+  const cartTotal = cart.reduce(
+    (sum, item) => sum + item.price * (item.quantity || 1),
+    0
+  );
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 p-4 md:p-6 mt-[65px]">
-      {/* Sidebar (Categories) */}
-      <div className="lg:col-span-3 bg-white p-4 rounded-xl shadow">
-        <h2 className="font-bold text-lg mb-4">Select Event Type</h2>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-1 gap-3">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`flex flex-col items-center p-2 sm:p-3 border rounded-lg text-sm transition ${
-                selectedCategory === cat
-                  ? "bg-purple-600 text-white"
-                  : "hover:bg-purple-50"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Services List */}
-      <div
-        className="lg:col-span-6 space-y-6 max-h-[80vh] overflow-y-auto 
-                   scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-gray-100 
-                   hover:scrollbar-thumb-purple-700 rounded-lg p-2"
-      >
-        <div className="bg-purple-100 p-4 md:p-6 rounded-xl mb-6">
-          <h1 className="text-xl md:text-2xl font-bold">{selectedCategory} Event Décor</h1>
-          <p className="text-gray-600 text-sm md:text-base">
-            Choose from our top-rated{" "}
-            {selectedCategory === "All" ? "event décor packages" : selectedCategory.toLowerCase()} experts
-          </p>
-        </div>
-
-        {filteredServices.length > 0 ? (
-          filteredServices.map((service) => (
-            <div
-              key={service.id}
-              className="group relative border border-transparent bg-white/70 
-                         backdrop-blur-md rounded-2xl p-4 md:p-5 shadow-md 
-                         hover:shadow-2xl transition-all hover:-translate-y-1 
-                         hover:border-purple-300 duration-300 flex gap-4"
-            >
-              {/* Image */}
-              <div className="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 rounded-xl overflow-hidden shadow-md">
-                <img
-                  src={service.image || "/decor-placeholder.png"}
-                  alt={service.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              {/* Details */}
-              <div className="flex-1">
-                <div className="flex flex-col sm:flex-row justify-between sm:items-center">
-                  <h3 className="font-bold text-gray-800 group-hover:text-purple-700 text-base sm:text-lg">
-                    {service.name}
-                  </h3>
-                  <span className="text-xs px-2 py-1 mt-1 sm:mt-0 rounded-full bg-purple-100 text-purple-700 font-medium self-start">
-                    {service.category}
-                  </span>
-                </div>
-                <p className="text-gray-500 text-sm mt-1">{service.desc}</p>
-
-                <div className="flex flex-col sm:flex-row justify-between sm:items-center mt-3 gap-2">
-                  <div>
-                    <span className="text-lg font-bold text-green-600">₹{service.price}</span>
-                    <span className="line-through text-gray-400 text-sm ml-2">₹{service.oldPrice}</span>
-                  </div>
-                  <button
-                    onClick={() => addToCart(service)}
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-500 
-                               text-white font-medium shadow-md hover:shadow-lg 
-                               hover:from-purple-700 hover:to-pink-600 
-                               transition-all duration-300 ease-in-out text-sm"
-                  >
-                    Add
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-gray-500">No services found in this category.</p>
-        )}
-      </div>
-
-      {/* Cart Sidebar */}
-      <div className="lg:col-span-3 space-y-6">
-        <div className="p-5 bg-white rounded-2xl shadow-md border border-gray-100">
-          <h3 className="text-lg font-bold text-gray-800 border-b pb-2">🛒 Your Cart</h3>
-          {cart.length === 0 ? (
-            <p className="text-gray-500 mt-3 italic">No items yet</p>
-          ) : (
-            <ul className="mt-3 space-y-3">
-              {cart.map((item, i) => (
-                <li
-                  key={i}
-                  className="flex justify-between items-center p-2 bg-purple-50 rounded-lg hover:bg-purple-100 transition text-sm"
-                >
-                  <div>
-                    <span className="block font-medium text-gray-700">{item.name}</span>
-                    <span className="text-xs font-semibold text-purple-700">₹{item.price}</span>
-                  </div>
-                  <button
-                    onClick={() => removeItem(i)}
-                    className="ml-3 text-xs px-3 py-1 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition"
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {cart.length > 0 && (
-            <Link href="/checkout">
-              <button className="mt-4 w-full py-2 bg-gradient-to-r from-purple-600 to-pink-500 
-                                 text-white rounded-xl font-medium shadow hover:from-purple-700 hover:to-pink-600 
-                                 transition-all duration-300 text-sm">
-                Checkout
+    <div className="mt-[70px] bg-gray-50 min-h-screen">
+      {/* 🔹 TOP FILTER BAR */}
+      <div className="sticky top-[70px] bg-white z-40 shadow-md border-b">
+        <div className="max-w-screen mx-2.5 mt-2.5 px-2 py-4 flex  gap-3 justify-between items-center">
+          {/* <h1 className="text-2xl font-extrabold text-[#002366]">
+            ✨ {selectedCategory} Services
+          </h1> */}
+          <div className="flex gap-5 flex-wrap justify-center w-full ">
+            {["ALL", "STAGE & BACKDROP", "ENTRANCE GATE", "VEHICLE","THEME BASED","BABY & KIDS CELEBRATIONS","SOUND & LIGHTING","TENT & VENUE"].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 border ${
+                  selectedCategory === cat
+                    ? "bg-[#002366] text-white border-[#002366]"
+                    : "bg-gray-50 hover:bg-gray-200 text-gray-700 border-gray-200"
+                }`}
+              >
+                {cat}
               </button>
-            </Link>
-          )}
-        </div>
-
-        {/* Offers */}
-        <div className="p-5 bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl shadow-md border border-purple-100 text-sm sm:text-base">
-          <p className="text-purple-700 font-semibold">🎁 Save 15% on Event Décor</p>
-          <button className="mt-2 font-medium text-purple-600 underline hover:text-purple-800">
-            View Offers
-          </button>
-        </div>
-
-        {/* Promise */}
-        <div className="p-5 bg-white rounded-2xl shadow-md border border-gray-100 text-sm sm:text-base">
-          <h4 className="text-lg font-bold text-gray-800">🌟 Why Choose Us</h4>
-          <ul className="mt-3 space-y-2 text-gray-600">
-            <li className="flex items-center gap-2">
-              <span className="text-green-500">✔</span> 4.8+ Rated Event Planners
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="text-green-500">✔</span> Luxury Custom Décor
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="text-green-500">✔</span> Affordable Packages
-            </li>
-          </ul>
+            ))}
+          </div>
         </div>
       </div>
+
+      {/* 🔹 MAIN SERVICE GRID */}
+      <main className="max-w-6xl mx-auto px-4 py-10">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {filteredServices.length > 0 ? (
+            filteredServices.map((service) => (
+              <motion.div
+                key={service._id}
+                variants={itemVariants}
+                className="service-card bg-white rounded-3xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300 overflow-hidden group"
+              >
+                <div className="relative w-full h-52">
+                  <img
+                    src={service.image || "/cleaning-placeholder.png"}
+                    alt={service.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                  />
+                  {service.discount && (
+                    <span className="absolute top-4 left-4 bg-red-500 text-white text-sm font-bold px-4 py-1 rounded-full shadow-lg">
+                      {service.discount} OFF
+                    </span>
+                  )}
+                </div>
+
+                <div className="p-6 flex flex-col">
+                  <h3 className="text-xl font-bold text-gray-900">
+                    {service.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                    {service.description}
+                  </p>
+
+                  <div className="flex justify-between items-center mt-4 border-t pt-4">
+                    <span className="text-2xl font-extrabold text-[#002366]">
+                      ₹{service.price}
+                    </span>
+                    <div className="text-sm text-gray-700">
+                      <span className="text-yellow-500">⭐</span>{" "}
+                      {service.rating?.average || "4.8"}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 mt-5">
+                    <button
+                      onClick={() => setSelectedService(service)}
+                      className="flex items-center justify-center flex-1 border border-[#002366]/50 text-[#002366] py-2 rounded-xl font-medium hover:bg-[#002366] hover:text-white transition-all"
+                    >
+                      <Eye className="w-4 h-4 mr-2" /> Details
+                    </button>
+                    <button
+                      onClick={() => addToCart(service)}
+                      className="flex items-center justify-center flex-1 bg-[#002366] text-white py-2 rounded-xl font-semibold hover:bg-[#4a65d6] transition-all"
+                    >
+                      <ShoppingCart className="w-4 h-4 mr-2" /> Add
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ))
+          ) : (
+            <p className="text-gray-500 col-span-2 p-10 bg-white rounded-xl shadow-lg" >
+              No services found in the {selectedCategory.toLowerCase()} category.
+            </p>
+          )}
+        </motion.div>
+      </main>
+
+      {/* 🔹 FLOATING CART BUTTON */}
+      <button
+        onClick={() => setCartOpen(!cartOpen)}
+        className="fixed bottom-6 right-6 bg-[#002366] text-white p-4 rounded-full shadow-2xl hover:bg-[#4a65d6] transition-all duration-300 z-50"
+      >
+        <ShoppingCart className="w-6 h-6" />
+        {totalCartItems > 0 && (
+          <span className="absolute -top-1 -right-1 bg-red-500 text-xs text-white rounded-full px-2 py-0.5">
+            {totalCartItems}
+          </span>
+        )}
+      </button>
+
+      {/* 🔹 SLIDING CART PANEL */}
+      <AnimatePresence>
+        {cartOpen && (
+          <motion.aside
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "tween", duration: 0.4 }}
+            className="fixed top-0 right-0 w-full sm:w-[400px] h-full bg-white shadow-2xl border-l z-50 p-6 overflow-y-auto"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-extrabold text-[#002366] flex items-center gap-2">
+                <ShoppingCart className="w-6 h-6" /> Your Cart
+              </h2>
+              <button
+                onClick={() => setCartOpen(false)}
+                className="p-2 rounded-full bg-gray-100 hover:bg-gray-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {cart.length === 0 ? (
+              <p className="text-gray-500 text-center mt-10">
+                Your cart is empty.
+              </p>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {cart.map((item, i) => (
+                  <div
+                    key={i}
+                    className="flex justify-between bg-gray-50 rounded-xl p-4 shadow-sm border"
+                  >
+                    <div>
+                      <h4 className="font-semibold text-gray-800">
+                        {item.title}
+                      </h4>
+                      <p className="text-sm text-gray-500 mt-0.5">
+                        {item.quantity}x @ ₹{item.price}
+                      </p>
+                    </div>
+                    <span className="font-bold text-green-600">
+                      ₹{item.price * (item.quantity || 1)}
+                    </span>
+                  </div>
+                ))}
+                <div className="mt-6 border-t pt-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="font-bold text-gray-800 text-lg">
+                      Total:
+                    </span>
+                    <span className="text-2xl font-extrabold text-[#002366]">
+                      ₹{cartTotal}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => router.push("/checkout")}
+                    className="w-full bg-green-500 text-white py-3 rounded-xl font-bold hover:bg-green-600 transition-all"
+                  >
+                    Proceed to Checkout
+                  </button>
+                </div>
+              </div>
+            )}
+          </motion.aside>
+        )}
+      </AnimatePresence>
+
+      {/* 🔹 DETAILS MODAL */}
+      <AnimatePresence>
+        {selectedService && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setSelectedService(null)}
+          >
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", stiffness: 100, damping: 20 }}
+              className="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-6 relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setSelectedService(null)}
+                className="absolute top-4 right-4 text-gray-500 p-2 rounded-full bg-gray-100 hover:bg-gray-200"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <img
+                src={selectedService.image || "/cleaning-placeholder.png"}
+                alt={selectedService.title}
+                className="w-full h-56 rounded-2xl object-cover mb-6 shadow-md"
+              />
+              <h3 className="text-3xl font-extrabold text-gray-900 mb-2">
+                {selectedService.title}
+              </h3>
+              <p className="text-gray-600 mb-4">{selectedService.description}</p>
+              <div className="flex justify-between items-center mb-6">
+                <div className="text-3xl font-extrabold text-[#002366]">
+                  ₹{selectedService.price}
+                </div>
+                <div className="text-sm font-semibold text-gray-700">
+                  <span className="text-yellow-500">⭐</span>{" "}
+                  {selectedService.rating?.average || "4.8"}
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  addToCart(selectedService);
+                  setSelectedService(null);
+                }}
+                className="w-full bg-[#002366] text-white py-3 rounded-xl font-bold hover:bg-[#4a65d6]"
+              >
+                Add to Cart
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
