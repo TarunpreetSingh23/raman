@@ -22,7 +22,7 @@ export default function Hero() {
       subtitle: "Turn your occasions into breathtaking memories with expert decor.",
       image: "/images/event.png",
       // ** New: Added dynamic background image **
-      bgImage: "/images/bg-event.jpg", // REPLACE with your actual background path
+      bgImage: "/images/vee3.jpg", // REPLACE with your actual background path
       gradient: "from-purple-500 to-pink-500",
       buttons: [{ text: "Book Decor", href: "/eventdecor" }],
     },
@@ -31,7 +31,7 @@ export default function Hero() {
       subtitle: "Pamper yourself with on-demand salon and spa treatments.",
       image: "/images/vee2.jpeg",
       // ** New: Added dynamic background image **
-      bgImage: "/images/bg-beauty.jpg", // REPLACE with your actual background path
+      bgImage: "/images/vee3.jpg", // REPLACE with your actual background path
       gradient: "from-rose-400 to-pink-500",
       buttons: [{ text: "Book Beauty", href: "/facial" }],
     },
