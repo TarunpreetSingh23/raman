@@ -13,7 +13,7 @@ export default function Hero() {
       subtitle: "Professional, reliable and spotless cleaning for your home.",
       image: "/images/vee1.jpeg",
       // ** New: Added dynamic background image **
-      bgImage: "/images/oc.jpg", // REPLACE with your actual background path
+      bgImage: "/images/Untitiled design.png", // REPLACE with your actual background path
       gradient: "from-blue-400 to-cyan-500",
       buttons: [{ text: "Book Cleaning", href: "/clean" }],
     },
