@@ -215,7 +215,7 @@ const removeFromCart = (id) => {
                 className="service-card bg-white rounded-3xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300 overflow-hidden group"
               >
                 <div className="relative w-full h-52">
-                  <img
+                  <Image
                     src={service.image || "/cleaning-placeholder.png"}
                     alt={service.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
@@ -375,7 +375,7 @@ const removeFromCart = (id) => {
               >
                 <X className="w-5 h-5" />
               </button>
-              <img
+              <Image
                 src={selectedService.image || "/cleaning-placeholder.png"}
                 alt={selectedService.title}
                 className="w-full h-56 rounded-2xl object-cover mb-6 shadow-md"
