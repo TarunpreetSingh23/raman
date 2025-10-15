@@ -64,13 +64,14 @@ const BEAUTY_CATEGORIES = [
 ]
 // Categories for Cleaning Serservices
 const CLEANING_CATEGORIES = [
-  { id: 1, name: "Home Deep Cleaning", image: "/images/hc1.webp", href: "/services/home" },
+  
   { id: 2, name: "Office/Commercial Cleaning", image: "/images/oc.jpg", href: "/services/office" },
   { id: 3, name: "Carpet Cleaning", image: "/images/cc.webp", href: "/services/carpet" },
   { id: 4, name: "Window Cleaning", image: "/images/wc.jpg", href: "/services/window" },
   { id: 5, name: "Sofa & Furniture Cleaning", image: "/images/hc.webp", href: "/services/sofa" },
   { id: 6, name: "Kitchen Appliance Cleaning", image: "/images/kc.jpg", href: "/services/kitchen" },
   { id: 7, name: "Bathroom Sanitization", image: "/images/washc.webp", href: "/services/bathroom" },
+  { id: 1, name: "Home Deep Cleaning", image: "/images/hc1.webp", href: "/services/home" },
 ];
 
 // Categories for Event Decor
