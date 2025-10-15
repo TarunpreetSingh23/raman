@@ -8,15 +8,15 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 export default function Hero() {
   // --- Slide Data ---
   const slides = [
-    {
-      title: "Cleaning Services",
-      subtitle: "Professional, reliable and spotless cleaning for your home.",
-      image: "/images/vee1.jpeg",
-      // ** New: Added dynamic background image **
-      bgImage: "/images/Untitiled design.png", // REPLACE with your actual background path
-      gradient: "from-blue-400 to-cyan-500",
-      buttons: [{ text: "Book Cleaning", href: "/clean" }],
-    },
+    // {
+    //   title: "Cleaning Services",
+    //   subtitle: "Professional, reliable and spotless cleaning for your home.",
+    //   image: "/images/vee1.jpeg",
+    //   // ** New: Added dynamic background image **
+    //   bgImage: "/images/Untitiled design.png", // REPLACE with your actual background path
+    //   gradient: "from-blue-400 to-cyan-500",
+    //   buttons: [{ text: "Book Cleaning", href: "/clean" }],
+    // },
     {
       title: "Event Decor",
       subtitle: "Turn your occasions into breathtaking memories with expert decor.",
