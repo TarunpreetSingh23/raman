@@ -13,7 +13,7 @@ export default function Hero() {
       subtitle: "Professional, reliable and spotless cleaning for your home.",
       image: "/images/vee1.jpeg",
       // ** New: Added dynamic background image **
-      bgImage: "/images/vee3.jpg", // REPLACE with your actual background path
+      bgImage: "/images/oc.jpg", // REPLACE with your actual background path
       gradient: "from-blue-400 to-cyan-500",
       buttons: [{ text: "Book Cleaning", href: "/clean" }],
     },
@@ -22,7 +22,7 @@ export default function Hero() {
       subtitle: "Turn your occasions into breathtaking memories with expert decor.",
       image: "/images/event.png",
       // ** New: Added dynamic background image **
-      bgImage: "/images/vee3.jpg", // REPLACE with your actual background path
+      bgImage: "/images/wd.jpg", // REPLACE with your actual background path
       gradient: "from-purple-500 to-pink-500",
       buttons: [{ text: "Book Decor", href: "/eventdecor" }],
     },
