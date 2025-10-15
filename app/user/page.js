@@ -74,11 +74,11 @@ export default function ProfilePage() {
   if (!session) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 to-gray-800 p-4 sm:p-8 md:p-12 font-sans text-gray-100">
+    <div className="min-h-screen bg-gradient-to-br mt-[70px] from-gray-950 to-gray-800 p-4 sm:p-8 md:p-12 font-sans text-gray-100">
       {/* Header */}
       <div className="flex justify-between items-center mb-12 border-b border-gray-700 pb-6">
         <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
-          <span className="text-indigo-400">👋</span> My Profile
+          <span className="text-indigo-400"></span> My Profile
         </h1>
         <button
           onClick={handleLogout}
@@ -103,7 +103,7 @@ export default function ProfilePage() {
       {/* Orders */}
       <div className="mt-12">
         <h3 className="text-3xl font-bold text-white mb-8 border-l-4 border-indigo-400 pl-3">
-          📦 Order History
+           Order History
         </h3>
         <div className="grid gap-6 max-h-[65vh] overflow-y-auto pr-3 custom-scrollbar">
           {loadingTasks ? (
@@ -136,7 +136,7 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <BiDollar className="w-4 h-4 text-green-400" />
+                      {/* <BiDollar className="w-4 h-4 text-green-400" /> */}
                       <p className="text-xl text-green-400 font-extrabold">
                         ₹{task.total}
                       </p>
@@ -154,8 +154,8 @@ export default function ProfilePage() {
           : task.is_approved
           ? "bg-blue-600/30 text-blue-400"
           : task.is_canceled
-          ? "bg-red-600/30 text-red-400"
-          : "bg-yellow-600/30 text-yellow-400 animate-pulse"
+          ? "bg-yellow-600/30 text-yellow-400"
+          : "bg-white-600/30 text-red-700 animate-pulse"
       }`}
     >
       {task.status}
@@ -176,8 +176,8 @@ export default function ProfilePage() {
         </button>
       )}
 
-    {/* ✅ Add Review Button */}
-    {!task.is_completed && task.cart.length > 0 && (
+    
+     {/* {!task.is_completed && task.cart.length > 0 && (
       <button
         onClick={() => router.push(`/review/${task.order_id}`)
 }
@@ -185,7 +185,7 @@ export default function ProfilePage() {
       >
         Leave Review
       </button>
-    )}
+    )}  */}
   </div>
 </div>
 
