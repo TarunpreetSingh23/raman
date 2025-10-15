@@ -17,6 +17,15 @@ export default function Hero() {
     //   gradient: "from-blue-400 to-cyan-500",
     //   buttons: [{ text: "Book Cleaning", href: "/clean" }],
     // },
+     {
+      title: "Beauty Services",
+      subtitle: "Pamper yourself with on-demand salon and spa treatments.",
+      image: "/images/vee2.jpeg",
+      // ** New: Added dynamic background image **
+      bgImage: "/images/vee3.jpg", // REPLACE with your actual background path
+      gradient: "from-rose-400 to-pink-500",
+      buttons: [{ text: "Book Beauty", href: "/facial" }],
+    },
     {
       title: "Event Decor",
       subtitle: "Turn your occasions into breathtaking memories with expert decor.",
@@ -26,15 +35,7 @@ export default function Hero() {
       gradient: "from-purple-500 to-pink-500",
       buttons: [{ text: "Book Decor", href: "/eventdecor" }],
     },
-    {
-      title: "Beauty Services",
-      subtitle: "Pamper yourself with on-demand salon and spa treatments.",
-      image: "/images/vee2.jpeg",
-      // ** New: Added dynamic background image **
-      bgImage: "/images/vee3.jpg", // REPLACE with your actual background path
-      gradient: "from-rose-400 to-pink-500",
-      buttons: [{ text: "Book Beauty", href: "/facial" }],
-    },
+   
   ];
 
   // --- State ---
