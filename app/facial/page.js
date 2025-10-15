@@ -273,7 +273,7 @@ export default function CleaningPage() {
                 className="service-card bg-white rounded-3xl shadow-xl border border-gray-100 hover:shadow-2xl transition-all duration-300 overflow-hidden group"
               >
                 <div className="relative w-full h-52">
-                  <img
+                  <Image
                     src={service.image || "/cleaning-placeholder.png"}
                     alt={service.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
@@ -439,7 +439,7 @@ export default function CleaningPage() {
             >
                 {/* Image and Close Button */}
                 <div className="relative w-full h-56">
-                    <img
+                    <Image
                         src={selectedService.image || "/cleaning-placeholder.png"}
                         alt={selectedService.title}
                         className="w-full h-full rounded-t-3xl object-cover shadow-md"
